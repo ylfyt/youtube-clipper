@@ -96,16 +96,17 @@ chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
 			time.end = endSeconds;
 		}
 
-		chrome.storage.local
-			.set({
-				videoId: time,
-			})
-			.then(() => {
-				message.innerText = 'ok';
-			})
-			.catch((err) => {
-				message.innerText = err.message;
-			});
+		chrome.storage.local.get((videos) => {
+			videos[videoId] = time;
+			chrome.storage.local
+				.set(videos)
+				.then(() => {
+					message.innerText = 'ok';
+				})
+				.catch((err) => {
+					message.innerText = err.message;
+				});
+		});
 	}
 	document.getElementById('save-button').addEventListener('click', setTime);
 });
