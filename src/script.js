@@ -21,6 +21,42 @@ chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
 	document.getElementById('title').innerText = activeTab.title;
 	const message = document.getElementById('message');
 
+	function formatTime(seconds) {
+		const hour = Math.floor(seconds / 3600);
+		seconds = seconds % 3600;
+		const minute = Math.floor(seconds / 60);
+		seconds = seconds % 60;
+
+		if (hour !== 0) {
+			return `${hour}:${minute}:${seconds}`;
+		}
+
+		if (minute !== 0) {
+			return `${minute}:${seconds}`;
+		}
+
+		return seconds;
+	}
+
+	chrome.storage.local.get(videoId, (res) => {
+		const time = res[videoId];
+		if (!time) {
+			return;
+		}
+
+		if (time.start) {
+			const fmt = formatTime(time.start);
+			document.getElementById('start').value = fmt;
+		}
+
+		if (time.end) {
+			const fmt = formatTime(time.end);
+			document.getElementById('end').value = fmt;
+		}
+
+		document.getElementById('loop').checked = time.loop;
+	});
+
 	function getSeconds(time) {
 		const data = time.split(':');
 		if (data.length === 0) {
@@ -37,12 +73,12 @@ chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
 		}
 
 		if (data.length === 2) {
-			const second = parseInt(data[0]);
+			const second = parseInt(data[1]);
 			if (isNaN(second)) {
 				return -1;
 			}
 
-			const minute = parseInt(data[1]);
+			const minute = parseInt(data[0]);
 			if (isNaN(minute)) {
 				return -1;
 			}
@@ -50,7 +86,7 @@ chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
 			return second + minute * 60;
 		}
 
-		const second = parseInt(data[0]);
+		const second = parseInt(data[2]);
 		if (isNaN(second)) {
 			return -1;
 		}
@@ -60,7 +96,7 @@ chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
 			return -1;
 		}
 
-		const hour = parseInt(data[2]);
+		const hour = parseInt(data[0]);
 		if (isNaN(hour)) {
 			return -1;
 		}
@@ -71,6 +107,7 @@ chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
 	function setTime() {
 		const start = document.getElementById('start').value;
 		const end = document.getElementById('end').value;
+		const loop = document.getElementById('loop').checked;
 		if (!start && !end) {
 			console.log('Please input one');
 			return;
@@ -88,7 +125,7 @@ chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
 			return;
 		}
 
-		const time = {};
+		const time = { loop, title: activeTab.title };
 		if (start) {
 			time.start = startSeconds;
 		}

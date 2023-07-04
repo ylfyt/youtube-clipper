@@ -6,6 +6,7 @@ const process = (videoId) => {
 		if (!time) {
 			return;
 		}
+		console.log(time);
 
 		// Select the video element on the YouTube page
 		var videoElement = document.querySelector('video');
