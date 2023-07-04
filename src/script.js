@@ -3,6 +3,7 @@ chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
 	var activeTab = tabs[0];
 	const notYoutubeMessage = document.getElementById('not-youtube-message');
 	const mainContent = document.getElementById('main');
+	const clearButton = document.getElementById('clear-button');
 
 	if (activeTab.url?.indexOf('youtube.com/watch') === -1) {
 		mainContent.remove();
@@ -41,8 +42,20 @@ chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
 	chrome.storage.local.get(videoId, (res) => {
 		const time = res[videoId];
 		if (!time) {
+			clearButton.remove();
 			return;
 		}
+
+		clearButton.addEventListener('click', () => {
+			chrome.storage.local
+				.remove(videoId)
+				.then(() => {
+					message.innerText = 'Clear';
+				})
+				.catch((err) => {
+					message.innerText = err.message;
+				});
+		});
 
 		if (time.start) {
 			const fmt = formatTime(time.start);
