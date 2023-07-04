@@ -21,7 +21,7 @@ const process = (videoId) => {
 		}
 
 		if (typeof time.end !== 'undefined') {
-			videoElement.addEventListener('timeupdate', (e) => {
+			const listener = (e) => {
 				const curr = videoElement.currentTime;
 				if (curr < time.end) {
 					return;
@@ -31,8 +31,25 @@ const process = (videoId) => {
 					return;
 				}
 
-				videoElement.volume = 0;
-			});
+				console.log('============== END ==============');
+				videoElement.removeEventListener('timeupdate', listener);
+
+				const isPlaylist = window.location.href.indexOf('list=') !== -1;
+
+				console.log(isPlaylist ? 'NEXT' : 'PAUSE');
+				const keyEvent = new KeyboardEvent('keydown', {
+					key: isPlaylist ? 'n' : 'k',
+					keyCode: isPlaylist ? 78 : 75,
+					code: isPlaylist ? 'KeyN' : 'KeyK',
+					which: isPlaylist ? 78 : 75,
+					shiftKey: isPlaylist ? true : false,
+					ctrlKey: false,
+					metaKey: false,
+				});
+
+				document.dispatchEvent(keyEvent);
+			};
+			videoElement.addEventListener('timeupdate', listener);
 		}
 	});
 };
