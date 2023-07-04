@@ -5,7 +5,7 @@
   "action": {
     "default_popup": "index.html",
     "default_title": "Tabs",
-    "default_icon": "icon.png"
+    "default_icon": "youtube.png"
   },
   "permissions": [
     "activeTab",
