@@ -1,0 +1,30 @@
+{
+  "manifest_version": 3,
+  "name": "Youtube Duration Controller",
+  "version": "3.0.0",
+  "action": {
+    "default_popup": "index.html",
+    "default_title": "Tabs",
+    "default_icon": "icon.png"
+  },
+  "permissions": [
+    "activeTab",
+    "tabs",
+    "scripting"
+  ],
+  "host_permissions": [
+    "http://*/",
+    "https://*/"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "all_frames": true,
+      "js": [
+        "content-script.js"
+      ]
+    }
+  ]
+}
