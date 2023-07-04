@@ -8,9 +8,24 @@
 		<title>Youtube Duration Controllers</title>
 	</head>
 	<body>
-		<div>
-			<h1>Hello</h1>
+		<div id="not-youtube-message">
+			<h1>This tab is not a youtube video</h1>
 		</div>
+		<div id="main">
+			<h3 id="title">IU - Raindrop</h3>
+			<div>
+				<div>
+					<div>Start</div>
+					<input type="text" id="start" placeholder="HH:MM:SS" />
+				</div>
+				<div>
+					<div>End</div>
+					<input type="text" id="end" placeholder="HH:MM:SS" />
+				</div>
+			</div>
+			<button id="save-button">Save</button>
+		</div>
+		<span id="message"></span>
 		<script src="script.js"></script>
 	</body>
 </html>
