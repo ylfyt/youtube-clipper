@@ -155,3 +155,20 @@ chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
 	}
 	document.getElementById('save-button').addEventListener('click', setTime);
 });
+
+let seeAll = false;
+document.getElementById('all-button').addEventListener('click', () => {
+	if (seeAll) return;
+	seeAll = true;
+
+	const seeAllContainer = document.getElementById('see-all');
+
+	chrome.storage.local.get((videos) => {
+		const ids = Object.keys(videos);
+		for (const id of ids) {
+			const time = videos[id];
+			if (!time?.title) continue;
+			seeAllContainer.innerHTML += `<li><a target="_blank" href="http://youtube.com/watch?v=${id}">${time.title}</a></li>`;
+		}
+	});
+});
