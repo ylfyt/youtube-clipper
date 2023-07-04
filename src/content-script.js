@@ -27,16 +27,16 @@ const process = (videoId) => {
 					return;
 				}
 				if (time.loop) {
+					console.log(`============== LOOP ==============`);
 					videoElement.currentTime = time.start;
 					return;
 				}
 
-				console.log('============== END ==============');
 				videoElement.removeEventListener('timeupdate', listener);
-
 				const isPlaylist = window.location.href.indexOf('list=') !== -1;
 
-				console.log(isPlaylist ? 'NEXT' : 'PAUSE');
+				console.log(`============== END: ${isPlaylist ? 'NEXT' : 'PAUSE'} ==============`);
+
 				const keyEvent = new KeyboardEvent('keydown', {
 					key: isPlaylist ? 'n' : 'k',
 					keyCode: isPlaylist ? 78 : 75,
@@ -65,6 +65,8 @@ function addLocationObserver(callback) {
 	observer.observe(document.body, config);
 }
 
+let prevId = '';
+
 function observerCallback() {
 	if (window.location.href.indexOf('youtube.com/watch') === -1) {
 		console.log('not yt');
@@ -75,11 +77,12 @@ function observerCallback() {
 	const match = window.location.href.match(regex);
 
 	const videoId = match && match[1];
-	if (!videoId || added[videoId]) {
+	if (videoId === prevId) {
 		return;
 	}
-	added[videoId] = true;
 
+	console.log('New video ID', videoId);
+	prevId = videoId;
 	process(videoId);
 }
 

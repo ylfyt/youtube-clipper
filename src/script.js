@@ -47,14 +47,9 @@ chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
 		}
 
 		clearButton.addEventListener('click', () => {
-			chrome.storage.local
-				.remove(videoId)
-				.then(() => {
-					message.innerText = 'Clear';
-				})
-				.catch((err) => {
-					message.innerText = err.message;
-				});
+			chrome.storage.local.remove(videoId).then(() => {
+				message.innerText = 'Clear';
+			});
 		});
 
 		if (time.start) {
