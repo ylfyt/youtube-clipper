@@ -7,23 +7,25 @@
 		<link rel="stylesheet" href="style.css" />
 		<title>Youtube Duration Controllers</title>
 	</head>
-	<body style="min-width: 300px;">
+	<body style="min-width: 300px">
 		<div id="not-youtube-message">
 			<h3>Not in a youtube video tab</h3>
 		</div>
 		<div id="main">
 			<h3 id="title">IU - Raindrop</h3>
-			<div>
-				<div>
-					<div>Start</div>
-					<input type="text" id="start" placeholder="HH:MM:SS" />
+			<div style="margin-bottom: 10px;">
+				<div style="display: flex; gap: 10px">
+					<div>
+						<div>Start</div>
+						<input type="text" id="start" placeholder="HH:MM:SS" />
+					</div>
+					<div>
+						<div>End</div>
+						<input type="text" id="end" placeholder="HH:MM:SS" />
+					</div>
 				</div>
-				<div>
-					<div>End</div>
-					<input type="text" id="end" placeholder="HH:MM:SS" />
-				</div>
-				<div>
-					<div>Loop</div>
+				<div style="display: flex">
+					<div>Loop:</div>
 					<input type="checkbox" id="loop" />
 				</div>
 			</div>
