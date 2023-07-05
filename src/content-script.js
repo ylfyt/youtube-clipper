@@ -1,7 +1,8 @@
 const added = {};
+let controller;
 
 const process = (videoId) => {
-	chrome.storage.local.get(videoId, (res) => {
+	chrome.storage.local?.get(videoId, (res) => {
 		const time = res[videoId];
 		if (!time) {
 			return;
@@ -12,7 +13,6 @@ const process = (videoId) => {
 		var videoElement = document.querySelector('video');
 
 		if (typeof time.start !== 'undefined') {
-			// Set the current time to 80 seconds
 			videoElement.currentTime = time.start;
 		}
 
@@ -20,53 +20,55 @@ const process = (videoId) => {
 			time.start = 0;
 		}
 
-		if (typeof time.end !== 'undefined') {
-			const listener = (e) => {
-				const curr = videoElement.currentTime;
-				if (curr < time.end) {
-					return;
-				}
-				if (time.loop) {
-					console.log(`============== LOOP ==============`);
-					videoElement.currentTime = time.start;
-					return;
-				}
-
-				videoElement.removeEventListener('timeupdate', listener);
-				const isPlaylist = window.location.href.indexOf('list=') !== -1;
-
-				console.log(`============== END: ${isPlaylist ? 'NEXT' : 'PAUSE'} ==============`);
-
-				const keyEvent = new KeyboardEvent('keydown', {
-					key: isPlaylist ? 'n' : 'k',
-					keyCode: isPlaylist ? 78 : 75,
-					code: isPlaylist ? 'KeyN' : 'KeyK',
-					which: isPlaylist ? 78 : 75,
-					shiftKey: isPlaylist ? true : false,
-					ctrlKey: false,
-					metaKey: false,
-				});
-
-				document.dispatchEvent(keyEvent);
-			};
-			videoElement.addEventListener('timeupdate', listener);
+		if (typeof time.end === 'undefined') {
+			return;
 		}
+
+		const listener = (e) => {
+			const curr = videoElement.currentTime;
+			if (curr < time.end) {
+				return;
+			}
+			if (time.loop) {
+				console.log(`============== LOOP ==============`);
+				videoElement.currentTime = time.start;
+				return;
+			}
+
+			const isPlaylist = window.location.href.indexOf('list=') !== -1;
+			console.log(`============== END: ${isPlaylist ? 'NEXT' : 'PAUSE'} ==============`);
+			const keyEvent = new KeyboardEvent('keydown', {
+				key: isPlaylist ? 'n' : 'k',
+				keyCode: isPlaylist ? 78 : 75,
+				code: isPlaylist ? 'KeyN' : 'KeyK',
+				which: isPlaylist ? 78 : 75,
+				shiftKey: isPlaylist ? true : false,
+				ctrlKey: false,
+				metaKey: false,
+			});
+
+			document.dispatchEvent(keyEvent);
+			controller?.abort();
+			controller = undefined;
+		};
+		videoElement.addEventListener('timeupdate', listener);
+
+		controller = new AbortController();
+		controller.signal.onabort = () => {
+			console.log('============ ABORT ============');
+			videoElement.removeEventListener('timeupdate', listener);
+		};
 	});
 };
 
 function addLocationObserver(callback) {
-	// Options for the observer (which mutations to observe)
 	const config = { attributes: false, childList: true, subtree: false };
-
-	// Create an observer instance linked to the callback function
 	const observer = new MutationObserver(callback);
 
-	// Start observing the target node for configured mutations
 	observer.observe(document.body, config);
 }
 
 let prevId = '';
-
 function observerCallback() {
 	if (window.location.href.indexOf('youtube.com/watch') === -1) {
 		console.log('not yt');
@@ -80,9 +82,10 @@ function observerCallback() {
 	if (videoId === prevId) {
 		return;
 	}
-
-	console.log('New video ID', videoId);
 	prevId = videoId;
+	controller?.abort();
+
+	console.log(`============ PROCESS ${videoId} ============`);
 	process(videoId);
 }
 
