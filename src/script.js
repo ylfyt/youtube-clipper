@@ -157,15 +157,33 @@ chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
 });
 
 document.getElementById('all-button').addEventListener('click', () => {
-	const seeAllContainer = document.getElementById('see-all');
-	seeAllContainer.innerHTML = '';
+	function showAll() {
+		const seeAllContainer = document.getElementById('see-all');
+		seeAllContainer.innerHTML = '';
+		chrome.storage.local.get((videos) => {
+			const ids = Object.keys(videos);
+			for (const id of ids) {
+				const time = videos[id];
+				if (!time?.title) continue;
+				seeAllContainer.innerHTML += `
+        <li style="display: flex; align-items:start; border:solid; border-width: 2px; border-radius: 10px; padding: 5px;justify-content: space-between;margin-bottom:4px">
+          <a target="_blank" href="http://youtube.com/watch?v=${id}">${time.title}</a>
+          <button class="btn-delete" id="${id}">&#10005;</button>
+        </li>
+        `;
+			}
 
-	chrome.storage.local.get((videos) => {
-		const ids = Object.keys(videos);
-		for (const id of ids) {
-			const time = videos[id];
-			if (!time?.title) continue;
-			seeAllContainer.innerHTML += `<li><a target="_blank" href="http://youtube.com/watch?v=${id}">${time.title}</a></li>`;
-		}
-	});
+			const btns = document.getElementsByClassName('btn-delete');
+			for (let i = 0; i < btns.length; i++) {
+				const btn = btns[i];
+				btn.addEventListener('click', (e) => {
+					chrome.storage.local.remove(e.target.id).then(() => {
+						showAll();
+					});
+				});
+			}
+		});
+	}
+
+	showAll();
 });
