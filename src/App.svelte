@@ -3,6 +3,7 @@
 	import Clipper from './components/clipper.svelte';
 
 	let youtubeTab: chrome.tabs.Tab | undefined;
+	let videoId: string;
 
 	onMount(async () => {
 		const activeTab = (await chrome.tabs.query({ active: true, currentWindow: true }))[0];
@@ -11,7 +12,7 @@
 		}
 		const regex = /[?&]v=([^&#]+)/;
 		const match = activeTab.url?.match(regex);
-		const videoId = match && match[1];
+		videoId = match && match[1];
 		if (!videoId) {
 			return;
 		}
@@ -23,6 +24,6 @@
 	{#if !youtubeTab}
 		<h3>Not in a youtube video tab</h3>
 	{:else}
-		<Clipper tab={youtubeTab} />
+		<Clipper tab={youtubeTab} id={videoId} />
 	{/if}
 </main>
