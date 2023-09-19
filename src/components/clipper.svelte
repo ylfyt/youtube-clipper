@@ -42,10 +42,11 @@
 			return;
 		}
 
-		const video: IVideo = { loop, title: tab.title, start: startSeconds, end: endSeconds };
+		const video: IVideo = { loop, title: tab.title, start: startSeconds, end: endSeconds, id };
 		const videos = await chrome.storage.local.get();
 		videos[id] = video;
 		await chrome.storage.local.set(videos);
+		message = 'Success';
 	}
 
 	async function clearVideo() {

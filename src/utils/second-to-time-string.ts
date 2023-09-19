@@ -1,4 +1,7 @@
 export function secondToTimeString(seconds: number): string {
+	if (seconds < 0) {
+		return '';
+	}
 	const hour = Math.floor(seconds / 3600);
 	seconds = seconds % 3600;
 	const minute = Math.floor(seconds / 60);

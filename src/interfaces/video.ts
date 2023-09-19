@@ -3,4 +3,5 @@ export interface IVideo {
 	start: number;
 	end: number;
 	title: string;
+	id: string;
 }
