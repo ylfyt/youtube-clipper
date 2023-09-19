@@ -7,7 +7,7 @@
 	let youtubeTab: chrome.tabs.Tab | undefined;
 	let videoId: string;
 
-	let videos: IVideo[] = [];
+	let videos: IVideo[] | null = null;
 
 	async function loadAllVideos() {
 		const videoData = await chrome.storage.local.get();
@@ -44,7 +44,14 @@
 </script>
 
 <main>
-	{#if !youtubeTab}
+	{#if youtubeTab}
+		<Clipper tab={youtubeTab} id={videoId} />
+		{#if !videos}
+			<button on:click={loadAllVideos}>Show All</button>
+		{/if}
+	{/if}
+
+	{#if videos}
 		{#if videos.length === 0}
 			<h1>There is no video yet</h1>
 		{:else}
@@ -59,7 +66,5 @@
 				</li>
 			{/each}
 		{/if}
-	{:else}
-		<Clipper tab={youtubeTab} id={videoId} />
 	{/if}
 </main>
