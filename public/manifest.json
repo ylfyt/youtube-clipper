@@ -1,0 +1,16 @@
+{
+  "manifest_version": 3,
+  "name": "Youtube Clipper",
+  "version": "1.0.0",
+  "action": {
+    "default_popup": "index.html",
+    "default_title": "Tabs",
+    "default_icon": "icons/youtube.png"
+  },
+  "permissions": [
+    "activeTab",
+    "tabs",
+    "scripting",
+    "storage"
+  ]
+}
