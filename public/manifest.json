@@ -12,5 +12,20 @@
     "tabs",
     "scripting",
     "storage"
+  ],
+  "host_permissions": [
+    "http://*/",
+    "https://*/"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "all_frames": true,
+      "js": [
+        "content-script.js"
+      ]
+    }
   ]
 }
