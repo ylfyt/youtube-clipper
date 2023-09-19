@@ -43,28 +43,30 @@
 	}
 </script>
 
-<main>
+<main class="min-w-[500px] p-2 bg-yellow-50 flex flex-col items-center">
 	{#if youtubeTab}
 		<Clipper tab={youtubeTab} id={videoId} />
 		{#if !videos}
-			<button on:click={loadAllVideos}>Show All</button>
+			<button class="bg-yellow-300 px-2 py-1 rounded-md" on:click={loadAllVideos}>Show All</button>
 		{/if}
 	{/if}
 
 	{#if videos}
 		{#if videos.length === 0}
-			<h1>There is no video yet</h1>
+			<h1 class="w-full">There is no video yet</h1>
 		{:else}
-			{#each videos as item}
-				<li style="display: flex; align-items:start; border:solid; border-width: 2px; border-radius: 10px; padding: 5px;justify-content: space-between;margin-bottom:4px">
-					<a target="_blank" href="http://youtube.com/watch?v={item.id}">{item.title}</a>
-					<button
-						on:click={() => {
-							removeSavedVideo(item);
-						}}>&#10005;</button
-					>
-				</li>
-			{/each}
+			<ul class="w-full">
+				{#each videos as item}
+					<li style="display: flex; align-items:start; border:solid; border-width: 2px; border-radius: 10px; padding: 5px;justify-content: space-between;margin-bottom:4px">
+						<a target="_blank" class="text-red-400" href="http://youtube.com/watch?v={item.id}">{item.title}</a>
+						<button
+							on:click={() => {
+								removeSavedVideo(item);
+							}}>&#10005;</button
+						>
+					</li>
+				{/each}
+			</ul>
 		{/if}
 	{/if}
 </main>
