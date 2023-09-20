@@ -1,4 +1,7 @@
-const added = {};
+import { parseVideo } from './utils/parse-video';
+
+console.log('================= YT CLIPPER =================');
+
 let controller: AbortController | undefined;
 
 function addLocationObserver(callback: MutationCallback) {
@@ -11,10 +14,8 @@ function addLocationObserver(callback: MutationCallback) {
 let prevId = '';
 function observerCallback() {
 	if (window.location.href.indexOf('youtube.com/watch') === -1) {
-		console.log('NOT YT');
 		return;
 	}
-
 	const regex = /[?&]v=([^&#]+)/;
 	const match = window.location.href.match(regex);
 
@@ -40,34 +41,10 @@ interface IVideo {
 	id: string;
 }
 
-function parseVideo(data: any): IVideo | null {
-	if (!data) {
-		return null;
-	}
-	if (!data.id) {
-		return null;
-	}
-	const start = parseInt(data.start);
-	if (Number.isNaN(start)) {
-		return null;
-	}
-	const end = parseInt(data.end);
-	if (Number.isNaN(end)) {
-		return null;
-	}
-
-	return {
-		start,
-		end,
-		id: data.id,
-		loop: !!data.loop,
-		title: data.title ?? '',
-	};
-}
-
 async function executeVideo(videoId: string) {
 	const res = await chrome.storage.local?.get(videoId);
 	const video = parseVideo(res?.[videoId]);
+
 	if (!video) {
 		return;
 	}
