@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "concurrently --kill-others 'vite build -w' 'vite build -c vite.content-script.config.ts -w'",
     "build": "vite build && vite build -c vite.content-script.config.ts",
     "preview": "vite preview",
     "check": "svelte-check --tsconfig ./tsconfig.json"
@@ -24,6 +24,7 @@
     "vite": "^3.1.0"
   },
   "dependencies": {
-    "@types/chrome": "^0.0.246"
+    "@types/chrome": "^0.0.246",
+    "concurrently": "^8.2.1"
   }
 }
