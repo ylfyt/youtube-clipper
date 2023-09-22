@@ -1,36 +1,23 @@
-# Svelte Typescript Chrome Extension Boilerplate
+# Youtube Clipper
+A Chrome/Edge extension for creating clips timestamp in Youtube videos
 
-> Boilerplate for Chrome Extension Svelte Typescript project
-
-## Features
-
--   [Svelte](https://svelte.dev/)
--   [TypeScript](https://www.typescriptlang.org/)
--   [Vite](https://vitejs.dev/)
--   [CRXJS Vite Plugin](https://github.com/crxjs/chrome-extension-tools/blob/main/packages/vite-plugin/README.md)
--   [Chrome Extensions Manifest V3](https://developer.chrome.com/docs/extensions/mv3/intro/)
-
-## Development
-
-```bash
-# install dependencies
-npm i
-
-# build files to `/dist` directory
-# HMR for extension pages and content scripts
-npm run dev
+## How To Use
+1. Clone this repository
 ```
+git clone https://github.com/ylfyt/youtube-clipper.git
+```
+2. Install all dependencies
 
-## Build
+```
+npm install
+```
+3. Build the extension
 
-```bash
-# build files to `/dist` directory
-$ npm run build
+```
+npm run build
 ```
 
 ## Load unpacked extensions
-
-[Getting Started Tutorial](https://developer.chrome.com/docs/extensions/mv3/getstarted/)
 
 1. Open the Extension Management page by navigating to `chrome://extensions`.
 2. Enable Developer Mode by clicking the toggle switch next to `Developer mode`.
