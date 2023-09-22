@@ -1,4 +1,4 @@
-import { storage } from '../storage';
+import { storageDriver } from '../storage';
 
 console.log('================= YT CLIPPER =================');
 
@@ -45,7 +45,7 @@ interface IVideo {
 }
 
 async function executeVideo(videoId: string) {
-	const video = (await storage.get()).videos.get(videoId);
+	const video = (await storageDriver.get()).videos.get(videoId);
 	if (!video) {
 		return;
 	}

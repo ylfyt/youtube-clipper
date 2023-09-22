@@ -1,16 +1,6 @@
-import type { IVideo } from './interfaces/video';
+import type { IStorage } from './interfaces/storage';
 
-type IStorage = {
-	count: number;
-	videos: Map<string, IVideo>;
-};
-
-const defaultStorage: IStorage = {
-	count: 0,
-	videos: new Map(),
-};
-
-export const storage = {
+export const storageDriver = {
 	get: async (): Promise<IStorage> => {
 		try {
 			const value = await chrome.storage.sync.get();

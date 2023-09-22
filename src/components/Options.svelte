@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { storage } from "../storage";
+    import { storageDriver } from "../storage";
 
     export let count: number;
     let successMessage: string | null = null;
@@ -13,7 +13,7 @@
     }
 
     function save() {
-        storage.set({ count }).then(() => {
+        storageDriver.set({ count, videos: new Map() }).then(() => {
             successMessage = "Options saved!";
 
             setTimeout(() => {

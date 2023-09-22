@@ -2,23 +2,28 @@
 	import { onMount } from 'svelte';
 	import Clipper from './components/clipper.svelte';
 	import type { IVideo } from '../interfaces/video';
-	import { storage } from '../storage';
+	import { storageDriver } from '../storage';
+	import { storage } from './stores/storage';
 
 	let youtubeTab: chrome.tabs.Tab | undefined;
 	let videoId: string | undefined | null;
 
 	let videos: IVideo[] | null = null;
+	let init = false;
 
-	async function loadAllVideos() {
-		const storedVideos = (await storage.get()).videos;
-		const temp: IVideo[] = [];
-		for (let video of storedVideos) {
-			temp.push(video[1]);
-		}
-		videos = temp;
-	}
+	$: $storage,
+		(async () => {
+			if (!init) {
+				return;
+			}
+			await storageDriver.set($storage);
+		})();
 
 	onMount(async () => {
+		const res = await storageDriver.get();
+		init = true;
+		storage.set(res);
+
 		const activeTab = (await chrome.tabs.query({ active: true, currentWindow: true }))[0];
 		if (activeTab.url?.indexOf('youtube.com/watch') === -1) {
 			loadAllVideos();
@@ -34,13 +39,22 @@
 		youtubeTab = activeTab;
 	});
 
-	async function removeSavedVideo(video: IVideo) {
-		const value = await storage.get();
-		value.videos.delete(video.id);
-		await storage.set(value);
-
+	function loadAllVideos() {
+		const storedVideos = $storage.videos;
 		const temp: IVideo[] = [];
-		for (let video of value.videos) {
+		for (let video of storedVideos) {
+			temp.push(video[1]);
+		}
+		videos = temp;
+	}
+
+	async function removeSavedVideo(video: IVideo) {
+		storage.update((prev) => {
+			prev.videos.delete(video.id);
+			return prev;
+		});
+		const temp: IVideo[] = [];
+		for (let video of $storage.videos) {
 			temp.push(video[1]);
 		}
 		videos = temp;
