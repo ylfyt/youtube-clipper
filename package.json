@@ -1,28 +1,30 @@
 {
   "name": "youtube-clipper",
-  "private": true,
-  "version": "0.0.0",
+  "description": "Youtube Clipper",
+  "version": "1.0.0",
   "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ylfyt/youtube-clipper.git"
+  },
   "scripts": {
-    "dev": "concurrently --kill-others 'vite build -w' 'vite build -c vite.content-script.config.ts -w'",
-    "build": "vite build && vite build -c vite.content-script.config.ts",
-    "preview": "vite preview",
+    "dev": "vite",
+    "build": "vite build",
     "check": "svelte-check --tsconfig ./tsconfig.json"
   },
   "devDependencies": {
-    "@sveltejs/vite-plugin-svelte": "^1.0.2",
-    "@tsconfig/svelte": "^3.0.0",
-    "@types/chrome": "^0.0.246",
-    "@types/node": "^20.6.2",
-    "autoprefixer": "^10.4.15",
-    "concurrently": "^8.2.1",
+    "@crxjs/vite-plugin": "2.0.0-beta.18",
+    "@sveltejs/vite-plugin-svelte": "2.4.5",
+    "@tsconfig/svelte": "5.0.2",
+    "@types/chrome": "0.0.243",
+    "autoprefixer": "^10.4.16",
     "postcss": "^8.4.30",
-    "svelte": "^3.49.0",
-    "svelte-check": "^2.8.1",
-    "svelte-preprocess": "^4.10.7",
+    "svelte": "4.2.0",
+    "svelte-check": "3.5.0",
+    "svelte-preprocess": "5.0.4",
     "tailwindcss": "^3.3.3",
-    "tslib": "^2.4.0",
-    "typescript": "^4.6.4",
-    "vite": "^3.1.0"
+    "tslib": "2.6.2",
+    "typescript": "5.2.2",
+    "vite": "4.2.3"
   }
 }

@@ -1,4 +1,4 @@
-import type { IVideo } from 'src/interfaces/video';
+import type { IVideo } from '../interfaces/video';
 
 export function parseVideo(data: any): IVideo | null {
 	if (!data) {

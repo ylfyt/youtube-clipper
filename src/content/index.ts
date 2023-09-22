@@ -1,4 +1,4 @@
-import { parseVideo } from './utils/parse-video';
+import { storage } from '../storage';
 
 console.log('================= YT CLIPPER =================');
 
@@ -20,6 +20,9 @@ function observerCallback() {
 	const match = window.location.href.match(regex);
 
 	const videoId = match && match[1];
+  if (!videoId) {
+    return
+  }
 	if (videoId === prevId) {
 		return;
 	}
@@ -42,15 +45,16 @@ interface IVideo {
 }
 
 async function executeVideo(videoId: string) {
-	const res = await chrome.storage.local?.get(videoId);
-	const video = parseVideo(res?.[videoId]);
-
+	const video = (await storage.get()).videos.get(videoId);
 	if (!video) {
 		return;
 	}
 
 	// Select the video element on the YouTube page
 	var videoElement = document.querySelector('video');
+	if (!videoElement) {
+		return;
+	}
 
 	if (video.start >= 0) {
 		videoElement.currentTime = video.start;
@@ -65,6 +69,9 @@ async function executeVideo(videoId: string) {
 	}
 
 	const listener = () => {
+		if (!videoElement) {
+			return;
+		}
 		const curr = videoElement.currentTime;
 		if (curr < video.end) {
 			return;
@@ -96,6 +103,6 @@ async function executeVideo(videoId: string) {
 	controller = new AbortController();
 	controller.signal.onabort = () => {
 		console.log('============ ABORT ============');
-		videoElement.removeEventListener('timeupdate', listener);
+		videoElement!.removeEventListener('timeupdate', listener);
 	};
 }

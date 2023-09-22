@@ -1,7 +1,7 @@
 export interface IVideo {
-	loop: boolean;
+	id: string;
+	title: string;
 	start: number;
 	end: number;
-	title: string;
-	id: string;
+	loop: boolean;
 }

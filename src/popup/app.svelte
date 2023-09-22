@@ -1,22 +1,19 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import Clipper from './components/clipper.svelte';
-	import { parseVideo } from './utils/parse-video';
-	import type { IVideo } from './interfaces/video';
+	import type { IVideo } from '../interfaces/video';
+	import { storage } from '../storage';
 
 	let youtubeTab: chrome.tabs.Tab | undefined;
-	let videoId: string;
+	let videoId: string | undefined | null;
 
 	let videos: IVideo[] | null = null;
 
 	async function loadAllVideos() {
-		const videoData = await chrome.storage.local.get();
-		const ids = Object.keys(videoData);
+		const storedVideos = (await storage.get()).videos;
 		const temp: IVideo[] = [];
-		for (const id of ids) {
-			const video = parseVideo(videoData[id]);
-			if (!video) continue;
-			temp.push(video);
+		for (let video of storedVideos) {
+			temp.push(video[1]);
 		}
 		videos = temp;
 	}
@@ -38,13 +35,20 @@
 	});
 
 	async function removeSavedVideo(video: IVideo) {
-		await chrome.storage.local.remove(video.id).then();
-		videos = videos.filter((vid) => vid != video);
+		const value = await storage.get();
+		value.videos.delete(video.id);
+		await storage.set(value);
+
+		const temp: IVideo[] = [];
+		for (let video of value.videos) {
+			temp.push(video[1]);
+		}
+		videos = temp;
 	}
 </script>
 
 <main class="min-w-[500px] p-2 bg-yellow-50 flex flex-col items-center">
-	{#if youtubeTab}
+	{#if youtubeTab && videoId}
 		<Clipper tab={youtubeTab} id={videoId} />
 		{#if !videos}
 			<button class="bg-yellow-300 px-2 py-1 rounded-md" on:click={loadAllVideos}>Show All</button>

@@ -1,9 +1,9 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { parseVideo } from '../utils/parse-video';
-	import type { IVideo } from '../interfaces/video';
-	import { secondToTimeString } from '../utils/second-to-time-string';
-	import { timeStringToSecond } from '../utils/time-string-to-second';
+	import type { IVideo } from '../../interfaces/video';
+	import { secondToTimeString } from '../../utils/second-to-time-string';
+	import { timeStringToSecond } from '../../utils/time-string-to-second';
+	import { storage } from '../../storage';
 
 	export let tab: chrome.tabs.Tab;
 	export let id: string;
@@ -14,8 +14,8 @@
 	let message = '';
 
 	onMount(async () => {
-		const res = await chrome.storage.local.get(id);
-		const video = parseVideo(res[id]);
+		const test = await storage.get();
+		const video = test.videos.get(id);
 		if (!video) {
 			return;
 		}
@@ -42,15 +42,20 @@
 			return;
 		}
 
-		const video: IVideo = { loop, title: tab.title, start: startSeconds, end: endSeconds, id };
-		const videos = await chrome.storage.local.get();
-		videos[id] = video;
-		await chrome.storage.local.set(videos);
+		const video: IVideo = { loop, title: tab.title!, start: startSeconds, end: endSeconds, id };
+		const videos = (await storage.get()).videos;
+		videos.set(id, video);
+		await storage.set({
+			count: 0,
+			videos: videos,
+		});
 		message = 'Saved';
 	}
 
 	async function clearVideo() {
-		await chrome.storage.local.remove(id).then();
+		const value = await storage.get();
+		value.videos.delete(id);
+		await storage.set(value);
 		message = 'Cleared';
 		start = '';
 		end = '';
