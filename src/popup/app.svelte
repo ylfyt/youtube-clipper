@@ -2,7 +2,7 @@
 	import { onMount } from 'svelte';
 	import Clipper from './components/clipper.svelte';
 	import type { IVideo } from '../interfaces/video';
-	import { storageDriver } from '../storage';
+	import { storageDriver } from '../storage-driver';
 	import { storage } from './stores/storage';
 
 	let youtubeTab: chrome.tabs.Tab | undefined;

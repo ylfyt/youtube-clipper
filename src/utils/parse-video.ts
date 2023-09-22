@@ -1,6 +1,6 @@
-import type { IVideo } from '../interfaces/video';
+import type { IVideox } from '../interfaces/video';
 
-export function parseVideo(data: any): IVideo | null {
+export function parseVideo(data: any): IVideox | null {
 	if (!data) {
 		return null;
 	}

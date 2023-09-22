@@ -1,7 +1,7 @@
+import type { IVideoClip } from './clip-time';
+
 export interface IVideo {
 	id: string;
 	title: string;
-	start: number;
-	end: number;
-	loop: boolean;
+	clips: IVideoClip[];
 }

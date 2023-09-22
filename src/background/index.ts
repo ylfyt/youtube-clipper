@@ -1,4 +1,4 @@
-import { storageDriver } from "../storage";
+import { storageDriver } from "../storage-driver";
 
 // Background service workers
 // https://developer.chrome.com/docs/extensions/mv3/service_workers/

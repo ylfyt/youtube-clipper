@@ -1,6 +1,6 @@
 <script lang="ts">
     import { onMount } from "svelte";
-    import { storageDriver } from "../storage";
+    import { storageDriver } from "../storage-driver";
     import Options from "./Options.svelte";
 
     let count = 0;

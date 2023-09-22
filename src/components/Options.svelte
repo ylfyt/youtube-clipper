@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { storageDriver } from "../storage";
+    import { storageDriver } from "../storage-driver";
 
     export let count: number;
     let successMessage: string | null = null;

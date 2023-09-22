@@ -1,4 +1,4 @@
-import { storageDriver } from '../storage';
+import { storageDriver } from '../storage-driver';
 
 console.log('================= YT CLIPPER =================');
 
@@ -56,15 +56,15 @@ async function executeVideo(videoId: string) {
 		return;
 	}
 
-	if (video.start >= 0) {
-		videoElement.currentTime = video.start;
+	if (video.clips[0].start >= 0) {
+		videoElement.currentTime = video.clips[0].start;
 	}
 
-	if (video.start < 0) {
-		video.start = 0;
+	if (video.clips[0].start < 0) {
+		video.clips[0].start = 0;
 	}
 
-	if (video.end < 0) {
+	if (video.clips[0].end < 0) {
 		return;
 	}
 
@@ -73,12 +73,12 @@ async function executeVideo(videoId: string) {
 			return;
 		}
 		const curr = videoElement.currentTime;
-		if (curr < video.end) {
+		if (curr < video.clips[0].end) {
 			return;
 		}
-		if (video.loop) {
+		if (video.clips[0].loop) {
 			console.log(`============== LOOP ==============`);
-			videoElement.currentTime = video.start;
+			videoElement.currentTime = video.clips[0].start;
 			return;
 		}
 
