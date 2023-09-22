@@ -71,7 +71,7 @@
 
 	{#if videos}
 		{#if videos.length === 0}
-			<h1 class="w-full">There is no video yet</h1>
+			<h1 class="w-full text-center text-base">There is no video yet</h1>
 		{:else}
 			<ul class="w-full">
 				{#each videos as item}
