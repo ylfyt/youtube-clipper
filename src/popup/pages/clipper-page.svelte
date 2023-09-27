@@ -61,7 +61,7 @@
 	}
 </script>
 
-<div>
+<div class="w-full flex flex-col items-center">
 	{#if youtubeTab && videoId}
 		<Clipper tab={youtubeTab} id={videoId} />
 	{/if}

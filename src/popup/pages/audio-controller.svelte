@@ -199,9 +199,9 @@
 	};
 </script>
 
-<div class="flex flex-col gap-2">
+<div class="flex flex-col gap-2 w-full">
 	{#each tabs as tab}
-		<div class="flex justify-between p-2 bg-primary gap-2 rounded text-white flex-col">
+		<div class="flex w-full justify-between p-2 bg-primary gap-2 rounded text-white flex-col">
 			<div class="text-sm font-medium">{tab.title}</div>
 			<div class="flex gap-6">
 				<Button
@@ -224,7 +224,7 @@
 						>
 							<MinusIcon width={14} />
 						</Button>
-						<span class="bg-[#abdeee] text-black w-[30px] py-0.5 rounded flex items-center justify-center h-full">{tab.volume}</span>
+						<span class="bg-[#abdeee] text-black w-[30px] py-0.5 rounded flex items-center justify-center h-full">{Math.floor(tab.volume)}</span>
 						<Button
 							onClick={() => {
 								upVolume(tab.id ?? 0);
