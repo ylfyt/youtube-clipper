@@ -4,4 +4,5 @@ export interface IVideo {
 	id: string;
 	title: string;
 	clips: IVideoClip[];
+	loop: boolean;
 }

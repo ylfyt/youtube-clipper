@@ -76,7 +76,7 @@ async function executeVideo(videoId: string) {
 		if (curr < video.clips[0].end) {
 			return;
 		}
-		if (video.clips[0].loop) {
+		if (video.loop) {
 			console.log(`============== LOOP ==============`);
 			videoElement.currentTime = video.clips[0].start;
 			return;

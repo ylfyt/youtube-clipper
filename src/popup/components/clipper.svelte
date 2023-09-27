@@ -11,45 +11,45 @@
 
 	export let tab: chrome.tabs.Tab;
 	export let id: string;
+	let loop: boolean = false;
 
 	let clips: IClipTime[] = [
 		{
 			start: '',
 			end: '',
-			loop: false,
 		},
 	];
 
 	let message = '';
 
-	$: isCanSave = !!clips.find((clip) => clip.start || clip.end || clip.loop);
+	$: isCanSave = !!clips.find((clip) => clip.start || clip.end || loop);
 
 	onMount(async () => {
 		const video = $storage.videos.get(id);
 		if (!video) {
 			return;
 		}
+		loop = video.loop;
 		for (let i = 0; i < video.clips.length; i++) {
 			const clip = video.clips[i];
 			if (i === 0) {
 				clips[0].start = secondToTimeString(clip.start);
 				clips[0].end = secondToTimeString(clip.end);
-				clips[0].loop = clip.loop;
 				continue;
 			}
 
 			clips.push({
 				start: secondToTimeString(clip.start),
 				end: secondToTimeString(clip.end),
-				loop: clip.loop,
 			});
 		}
 	});
 
 	async function saveVideo() {
 		const videoClips: IVideoClip[] = [];
-		for (let clip of clips) {
-			const canSave = clip.start || clip.end || clip.loop;
+		for (let idx = 0; idx < clips.length; idx++) {
+			const clip = clips[idx];
+			const canSave = clip.start || clip.end || loop;
 			if (!canSave) {
 				continue;
 			}
@@ -70,10 +70,16 @@
 				return;
 			}
 
+			if (idx > 0) {
+				if (startSeconds <= videoClips[idx - 1].end) {
+					message = `Start must be greater than the end of prev clip`;
+					return;
+				}
+			}
+
 			videoClips.push({
 				start: startSeconds,
 				end: endSeconds,
-				loop: clip.loop,
 			});
 		}
 
@@ -82,6 +88,7 @@
 				id,
 				title: tab.title!,
 				clips: videoClips,
+				loop: loop,
 			});
 			return prev;
 		});
@@ -97,7 +104,6 @@
 		for (let i = 0; i < clips.length; i++) {
 			clips[i].start = '';
 			clips[i].end = '';
-			clips[i].loop = false;
 		}
 		message = 'Cleared';
 	}
@@ -107,7 +113,6 @@
 			clips.push({
 				end: '',
 				start: '',
-				loop: false,
 			});
 			clips = [...clips];
 			return;
@@ -119,22 +124,34 @@
 
 <div class="w-full mb-4">
 	<span class="text-sm">{tab.title}</span>
-	<div class="flex gap-2 mt-4 items-center">
-		<button
-			disabled={!isCanSave}
-			on:click={saveVideo}
-			class="text-white bg-blue-700 hover:enabled:bg-blue-800 focus:ring-4 focus:outline-none disabled:opacity-70 focus:ring-blue-300 font-normal rounded-lg text-xs py-1 w-[70px] sm:w-auto text-center"
-			>Save</button
-		>
-		<button
-			on:click={clearVideo}
-			disabled={!isCanSave}
-			class="text-white bg-red-600 hover:enabled:bg-red-700 focus:ring-4 disabled:opacity-70 focus:outline-none focus:ring-red-300 font-normal rounded-lg text-xs py-1 w-[70px] sm:w-auto text-center"
-			>Clear</button
-		>
-		{#if message != ''}
-			<p class="ml-2 text-green-500 font-medium text-xs">{message}</p>
-		{/if}
+	<div class="flex justify-between items-center mt-4">
+		<div class="flex gap-2 items-center">
+			<button
+				disabled={!isCanSave}
+				on:click={saveVideo}
+				class="text-white bg-blue-700 hover:enabled:bg-blue-800 focus:ring-4 focus:outline-none disabled:opacity-70 focus:ring-blue-300 font-normal rounded-lg text-xs py-1 w-[70px] sm:w-auto text-center"
+				>Save</button
+			>
+			<button
+				on:click={clearVideo}
+				disabled={!isCanSave}
+				class="text-white bg-red-600 hover:enabled:bg-red-700 focus:ring-4 disabled:opacity-70 focus:outline-none focus:ring-red-300 font-normal rounded-lg text-xs py-1 w-[70px] sm:w-auto text-center"
+				>Clear</button
+			>
+			{#if message != ''}
+				<p class="ml-2 text-green-500 font-medium text-xs">{message}</p>
+			{/if}
+		</div>
+		<div class="flex justify-center items-start gap-2">
+			<input
+				bind:checked={loop}
+				id="checked-checkbox"
+				type="checkbox"
+				value=""
+				class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+			/>
+			<label for="checked-checkbox" class="text-xs font-medium text-gray-900 dark:text-gray-300">LOOP</label>
+		</div>
 	</div>
 	<div class="flex flex-col mb-1 mt-2 gap-2 items-start">
 		{#each clips as clip}
