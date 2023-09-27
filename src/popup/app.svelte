@@ -1,5 +1,6 @@
 <script lang="ts">
-	import VolumeIcon from '../assets/svg/volume-icon.svelte';
+	import CutIcon from '../assets/svg/cut-icon.svelte';
+import VolumeIcon from '../assets/svg/volume-icon.svelte';
 	import YoutubeIcon from '../assets/svg/youtube-icon.svelte';
 	import AudioController from './pages/audio-controller.svelte';
 	import ClipperPage from './pages/clipper-page.svelte';
@@ -13,15 +14,15 @@
 			on:click={() => {
 				isClipper = true;
 			}}
-			class={`fill-red-500 py-1 w-full flex items-center justify-center ${isClipper ? 'bg-primary fill-white' : 'bg-slate-300'}`}
+			class={`fill-red-500 rounded py-1 w-full flex items-center justify-center ${isClipper ? 'bg-primary fill-white' : 'bg-slate-300'}`}
 		>
-			<YoutubeIcon width={20} />
+			<CutIcon width={20} />
 		</button>
 		<button
 			on:click={() => {
 				isClipper = false;
 			}}
-			class={`fill-red-500 py-1 w-full flex items-center justify-center ${isClipper ? 'bg-slate-300' : 'bg-primary fill-white'}`}
+			class={`fill-red-500 rounded py-1 w-full flex items-center justify-center ${isClipper ? 'bg-slate-300' : 'bg-primary fill-white'}`}
 		>
 			<VolumeIcon width={20} />
 		</button>
