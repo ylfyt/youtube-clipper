@@ -48,4 +48,5 @@ export default defineManifest(async (env) => ({
 		},
 	},
 	permissions: ['activeTab', 'tabs', 'scripting', 'storage'] as chrome.runtime.ManifestPermissions[],
+	host_permissions: ['http://*/', 'https://*/'],
 }));
