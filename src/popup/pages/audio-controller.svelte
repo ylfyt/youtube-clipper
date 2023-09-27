@@ -9,6 +9,7 @@
 	import MinusIcon from '../../assets/svg/minus-icon.svelte';
 	import PlusIcon from '../../assets/svg/plus-icon.svelte';
 	import Button from '../components/button.svelte';
+	import PlayIcon from '../../assets/svg/play-icon.svelte';
 
 	let tabs: ITab[] = [];
 
@@ -25,6 +26,7 @@
 					volume: 0,
 					isPlaylist: false,
 					id: tab.id,
+					isPaused: true,
 				});
 				continue;
 			}
@@ -32,7 +34,10 @@
 			const res = await chrome.scripting.executeScript({
 				func: () => {
 					const video = document.getElementById('movie_player') as any;
-					return video?.getVolume() ?? 0;
+					return {
+						volume: video?.getVolume() ?? 0,
+						isPaused: document.querySelector('video')?.paused ?? false,
+					};
 				},
 				target: { tabId: tab.id! },
 				world: 'MAIN',
@@ -41,9 +46,10 @@
 				isMuted: !!tab.mutedInfo?.muted,
 				isYoutube: true,
 				title: tab.title ?? '',
-				volume: res?.[0]?.result ?? 0,
+				volume: res?.[0]?.result.volume,
 				isPlaylist: !!tab.url?.includes('list='),
 				id: tab.id,
+				isPaused: res?.[0]?.result?.isPaused,
 			});
 		}
 		tabs = temp;
@@ -54,6 +60,139 @@
 		tabs = tabs.map((tab) => {
 			if (tab.id === tabId) {
 				tab.isMuted = !state;
+			}
+			return tab;
+		});
+	};
+
+	const upVolume = async (tabId: number) => {
+		const res = await chrome.scripting.executeScript({
+			func: () => {
+				const video: any = document.getElementById('movie_player');
+				video.setVolume(video.getVolume() + 2);
+				return video.getVolume();
+			},
+			target: {
+				tabId,
+			},
+			world: 'MAIN',
+		});
+
+		const newVolume = Math.round(res?.[0]?.result);
+		tabs = tabs.map((tab) => {
+			if (tab.id === tabId) {
+				tab.volume = newVolume;
+			}
+			return tab;
+		});
+	};
+
+	const downVolume = async (tabId: number) => {
+		const res = await chrome.scripting.executeScript({
+			func: () => {
+				const video: any = document.getElementById('movie_player');
+				video.setVolume(video.getVolume() - 2);
+				return video.getVolume();
+			},
+			target: {
+				tabId,
+			},
+			world: 'MAIN',
+		});
+
+		const newVolume = Math.round(res?.[0]?.result);
+		tabs = tabs.map((tab) => {
+			if (tab.id === tabId) {
+				tab.volume = newVolume;
+			}
+			return tab;
+		});
+	};
+
+	const next = async (tabId: number) => {
+		await chrome.scripting.executeScript({
+			func: () => {
+				document.dispatchEvent(
+					new KeyboardEvent('keydown', {
+						key: 'N',
+						keyCode: 78,
+						which: 78,
+						shiftKey: true,
+						ctrlKey: false,
+						metaKey: false,
+					})
+				);
+			},
+			target: {
+				tabId,
+			},
+		});
+
+		setTimeout(async () => {
+			const newTab = await chrome.tabs.get(tabId);
+			tabs = tabs.map((tab) => {
+				if (tab.id === tabId) {
+					tab.title = newTab.title ?? '';
+				}
+				return tab;
+			});
+		}, 1000);
+	};
+
+	const prev = async (tabId: number) => {
+		await chrome.scripting.executeScript({
+			func: () => {
+				document.dispatchEvent(
+					new KeyboardEvent('keydown', {
+						key: 'P',
+						keyCode: 80,
+						which: 80,
+						shiftKey: true,
+						ctrlKey: false,
+						metaKey: false,
+					})
+				);
+			},
+			target: {
+				tabId,
+			},
+		});
+
+		setTimeout(async () => {
+			const newTab = await chrome.tabs.get(tabId);
+			tabs = tabs.map((tab) => {
+				if (tab.id === tabId) {
+					tab.title = newTab.title ?? '';
+				}
+				return tab;
+			});
+		}, 1000);
+	};
+
+	const togglePlay = async (tabId: number) => {
+		const res = await chrome.scripting.executeScript({
+			func: () => {
+				document.dispatchEvent(
+					new KeyboardEvent('keydown', {
+						key: 'k',
+						keyCode: 75,
+						code: 'KeyK',
+						which: 75,
+						shiftKey: false,
+						ctrlKey: false,
+						metaKey: false,
+					})
+				);
+
+				return document.querySelector('video')!.paused;
+			},
+			target: {
+				tabId,
+			},
+		});
+		tabs = tabs.map((tab) => {
+			if (tab.id === tabId) {
+				tab.isPaused = !tab.isPaused;
 			}
 			return tab;
 		});
@@ -78,24 +217,47 @@
 				</Button>
 				{#if tab.isYoutube}
 					<div class="flex gap-2 items-center">
-						<Button>
+						<Button
+							onClick={() => {
+								downVolume(tab.id ?? 0);
+							}}
+						>
 							<MinusIcon width={14} />
 						</Button>
 						<span class="bg-[#abdeee] text-black w-[30px] py-0.5 rounded flex items-center justify-center h-full">{tab.volume}</span>
-						<Button>
+						<Button
+							onClick={() => {
+								upVolume(tab.id ?? 0);
+							}}
+						>
 							<PlusIcon width={14} />
 						</Button>
 					</div>
-				{/if}
-				{#if tab.isPlaylist}
 					<div class="flex items-center justify-center gap-2">
-						<Button>
+						<Button
+							hide={!tab.isPlaylist}
+							onClick={() => {
+								prev(tab.id ?? 0);
+							}}
+						>
 							<PrevIcon width={14} />
 						</Button>
-						<Button>
-							<PauseIcon width={14} />
+						<Button
+							onClick={() => {
+								togglePlay(tab.id ?? 0);
+							}}
+						>
+							{#if tab.isPaused}
+								<PlayIcon width={14} />
+							{:else}
+								<PauseIcon width={14} />
+							{/if}
 						</Button>
-						<Button>
+						<Button
+							onClick={() => {
+								next(tab.id ?? 0);
+							}}
+						>
 							<NextIcon width={14} />
 						</Button>
 					</div>

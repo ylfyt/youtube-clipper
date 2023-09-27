@@ -1,8 +1,9 @@
 export interface ITab {
-  id?: number
+	id?: number;
 	title: string;
 	isYoutube: boolean;
 	isMuted: boolean;
-  isPlaylist: boolean
+	isPlaylist: boolean;
+	isPaused: boolean;
 	volume: number;
 }
