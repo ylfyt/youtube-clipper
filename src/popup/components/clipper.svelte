@@ -71,7 +71,7 @@
 			}
 
 			if (idx > 0) {
-				if (startSeconds <= videoClips[idx - 1].end) {
+				if (startSeconds <= videoClips[idx - 1].end || videoClips[idx - 1].end === -1) {
 					message = `Start must be greater than the end of prev clip`;
 					return;
 				}

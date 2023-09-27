@@ -20,9 +20,9 @@ function observerCallback() {
 	const match = window.location.href.match(regex);
 
 	const videoId = match && match[1];
-  if (!videoId) {
-    return
-  }
+	if (!videoId) {
+		return;
+	}
 	if (videoId === prevId) {
 		return;
 	}
@@ -55,16 +55,17 @@ async function executeVideo(videoId: string) {
 	if (!videoElement) {
 		return;
 	}
+	let clipPosition = 0;
 
-	if (video.clips[0].start >= 0) {
-		videoElement.currentTime = video.clips[0].start;
+	if (video.clips[clipPosition].start >= 0) {
+		videoElement.currentTime = video.clips[clipPosition].start;
 	}
 
-	if (video.clips[0].start < 0) {
-		video.clips[0].start = 0;
+	if (video.clips[clipPosition].start < 0) {
+		video.clips[clipPosition].start = 0;
 	}
 
-	if (video.clips[0].end < 0) {
+	if (video.clips[clipPosition].end < 0) {
 		return;
 	}
 
@@ -73,28 +74,51 @@ async function executeVideo(videoId: string) {
 			return;
 		}
 		const curr = videoElement.currentTime;
-		if (curr < video.clips[0].end) {
+		if (curr < video.clips[clipPosition].end) {
 			return;
 		}
-		if (video.loop) {
-			console.log(`============== LOOP ==============`);
-			videoElement.currentTime = video.clips[0].start;
+		clipPosition++;
+
+		if (clipPosition < video.clips.length) {
+			videoElement.currentTime = video.clips[clipPosition].start;
 			return;
 		}
 
 		const isPlaylist = window.location.href.indexOf('list=') !== -1;
-		console.log(`============== END: ${isPlaylist ? 'NEXT' : 'PAUSE'} ==============`);
+		if (isPlaylist) {
+			const keyEvent = new KeyboardEvent('keydown', {
+				key: 'n',
+				keyCode: 78,
+				code: 'KeyN',
+				which: 78,
+				shiftKey: true,
+				ctrlKey: false,
+				metaKey: false,
+			});
+			document.dispatchEvent(keyEvent);
+			controller?.abort();
+			controller = undefined;
+			return;
+		}
+
+		if (video.loop) {
+			console.log(`============== LOOP ==============`);
+			clipPosition = 0;
+			videoElement.currentTime = video.clips[0].start;
+			return;
+		}
+
 		const keyEvent = new KeyboardEvent('keydown', {
-			key: isPlaylist ? 'n' : 'k',
-			keyCode: isPlaylist ? 78 : 75,
-			code: isPlaylist ? 'KeyN' : 'KeyK',
-			which: isPlaylist ? 78 : 75,
-			shiftKey: isPlaylist ? true : false,
+			key: 'k',
+			keyCode: 75,
+			code: 'KeyK',
+			which: 75,
+			shiftKey: false,
 			ctrlKey: false,
 			metaKey: false,
 		});
-
 		document.dispatchEvent(keyEvent);
+		clipPosition = 0;
 		controller?.abort();
 		controller = undefined;
 	};
