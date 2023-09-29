@@ -10,13 +10,39 @@
 	import PlusIcon from '../../assets/svg/plus-icon.svelte';
 	import Button from '../components/button.svelte';
 	import PlayIcon from '../../assets/svg/play-icon.svelte';
+	import { storage } from '../stores/storage';
+	import { storageDriver } from '../../storage-driver';
 
 	let tabs: ITab[] = [];
+	let init = false;
+
+	$: $storage,
+		(async () => {
+			if (!init) {
+				return;
+			}
+			await storageDriver.set($storage);
+		})();
+
+	const isIncluded = (url: string) => {
+		for (let pattern of $storage.includedUrls) {
+			if (url.includes(pattern)) return true;
+		}
+
+		return false;
+	};
 
 	onMount(async () => {
+		const res = await storageDriver.get();
+		init = true;
+		storage.set(res);
+
 		const chromeTabs = await chrome.tabs.query({});
 		const temp: ITab[] = [];
 		for (let tab of chromeTabs) {
+			if ($storage.includedUrls.length !== 0 && !isIncluded(tab.url!)) {
+				continue;
+			}
 			const isYoutube = tab.url?.includes('youtube.com/watch') || tab.url?.includes('youtube.com/shorts');
 			if (!isYoutube) {
 				temp.push({

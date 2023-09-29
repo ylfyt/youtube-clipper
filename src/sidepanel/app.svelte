@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import Options from '../components/Options.svelte';
 	import { storageDriver } from '../storage-driver';
 
 	let count = 0;
@@ -12,5 +11,4 @@
 
 <div>
 	<h1>Side Panel</h1>
-	<Options {count} />
 </div>

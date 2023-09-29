@@ -1,6 +1,7 @@
 <script lang="ts">
 	import CutIcon from '../assets/svg/cut-icon.svelte';
-import VolumeIcon from '../assets/svg/volume-icon.svelte';
+	import SettingIcon from '../assets/svg/setting-icon.svelte';
+	import VolumeIcon from '../assets/svg/volume-icon.svelte';
 	import YoutubeIcon from '../assets/svg/youtube-icon.svelte';
 	import AudioController from './pages/audio-controller.svelte';
 	import ClipperPage from './pages/clipper-page.svelte';
@@ -10,6 +11,7 @@ import VolumeIcon from '../assets/svg/volume-icon.svelte';
 
 <main class="min-w-[500px] p-2 bg-yellow-50 flex flex-col items-center">
 	<div class="flex items-center gap-2 w-full mb-4">
+		<a href="../options/index.html" target="_blank" class="fill-orange-600"> <SettingIcon width={20} /> </a>
 		<button
 			on:click={() => {
 				isClipper = true;

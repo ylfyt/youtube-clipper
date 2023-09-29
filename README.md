@@ -1,16 +1,29 @@
-# Youtube Clipper
+# Youtube Add On
+
 A Chrome/Edge extension for creating clips timestamp in Youtube videos
 
+Feature:
+
+- Mute/Unmute tabs audio
+- Play/Pause Youtube video
+- Prev/Next Youtube video
+- Control Youtube volume
+- Create multi clips/timestamp for youtube video
+
 ## How To Use
+
 1. Clone this repository
+
 ```
 git clone https://github.com/ylfyt/youtube-clipper.git
 ```
+
 2. Install all dependencies
 
 ```
 npm install
 ```
+
 3. Build the extension
 
 ```
