@@ -47,6 +47,14 @@ export default defineManifest(async (env) => ({
 			'128': 'src/assets/icons/icon128.png',
 		},
 	},
+  commands: {
+    "play-toggle": {
+      suggested_key: {
+        default: "Alt+C"
+      },
+      description: "Play/Pause the first Youtube video tab"
+    }
+  },
 	permissions: ['activeTab', 'tabs', 'scripting', 'storage'] as chrome.runtime.ManifestPermissions[],
 	host_permissions: ['http://*/', 'https://*/'],
 }));
