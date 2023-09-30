@@ -49,6 +49,13 @@ jobs:
       with:
         tag_name: ${{ github.ref }}
         release_name: Release ${{ github.ref }}
+    - name: Extract tag version
+      id: extract_tag
+      run: |
+        TAG_NAME="${{ github.ref }}"
+        TAG_NAME="${TAG_NAME#refs/tags/}" # Remove the "refs/tags/" prefix
+        echo "Tag version: $TAG_NAME"
+        echo "::set-output name=tag_version::$TAG_NAME"
     - name: Upload release asset
       uses: actions/upload-release-asset@v1
       env:
@@ -56,5 +63,5 @@ jobs:
       with:
         upload_url: ${{ steps.create-new-release.outputs.upload_url }}
         asset_path: ./dist.zip
-        asset_name: youtube-clipper-v${{ github.ref }}.zip
+        asset_name: youtube-clipper-${{ steps.extract_tag.outputs.tag_version }}.zip
         asset_content_type: application/zip
