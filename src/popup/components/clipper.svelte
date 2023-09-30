@@ -123,19 +123,22 @@
 </script>
 
 <div class="w-full mb-4">
-	<span class="text-sm">{tab.title}</span>
+  <div class="flex gap-2">
+    <img width="20px" src={tab.favIconUrl} alt="icon">
+    <span class="text-sm font-medium">{tab.title}</span>
+  </div>
 	<div class="flex justify-between items-center mt-4">
 		<div class="flex gap-2 items-center">
 			<button
 				disabled={!isCanSave}
 				on:click={saveVideo}
-				class="text-white bg-blue-700 hover:enabled:bg-blue-800 focus:ring-4 focus:outline-none disabled:opacity-70 focus:ring-blue-300 font-normal rounded-lg text-xs py-1 w-[70px] sm:w-auto text-center"
+				class="font-semibold bg-color0 py-1 w-[70px] rounded-md disabled:opacity-80 disabled:cursor-not-allowed"
 				>Save</button
 			>
 			<button
 				on:click={clearVideo}
 				disabled={!isCanSave}
-				class="text-white bg-red-600 hover:enabled:bg-red-700 focus:ring-4 disabled:opacity-70 focus:outline-none focus:ring-red-300 font-normal rounded-lg text-xs py-1 w-[70px] sm:w-auto text-center"
+				class="text-dark font-semibold bg-red-400 py-1 w-[70px] rounded-md disabled:opacity-80 disabled:cursor-not-allowed"
 				>Clear</button
 			>
 			{#if message != ''}

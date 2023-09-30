@@ -67,7 +67,7 @@
 	{/if}
 
 	{#if !videos}
-		<button class="bg-yellow-300 px-2 py-1 rounded-md" on:click={loadAllVideos}>Show Saved Videos</button>
+		<button class="bg-color0 px-2 py-1 rounded-md font-semibold text-dark dark:text-white" on:click={loadAllVideos}>Show Saved Videos</button>
 	{:else if videos.length === 0}
 		<h1 class="w-full text-center text-base">There is no video yet</h1>
 	{:else}

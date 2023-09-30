@@ -53,6 +53,7 @@
 					isPlaylist: false,
 					id: tab.id,
 					isPaused: true,
+          iconUrl: tab.favIconUrl
 				});
 				continue;
 			}
@@ -76,6 +77,7 @@
 				isPlaylist: !!tab.url?.includes('list='),
 				id: tab.id,
 				isPaused: res?.[0]?.result?.isPaused,
+        iconUrl: tab.favIconUrl
 			});
 		}
 		tabs = temp;
@@ -227,8 +229,13 @@
 
 <div class="flex flex-col gap-2 w-full">
 	{#each tabs as tab}
-		<div class="flex w-full justify-between p-2 bg-primary gap-2 rounded text-white flex-col">
-			<div class="text-sm font-medium">{tab.title}</div>
+		<div class="flex w-full justify-between p-2 bg-primary gap-2 rounded text-white flex-col shadow-md">
+			<div class="flex items-start gap-2">
+        {#if tab.iconUrl}
+          <img width="20px" src={tab.iconUrl} alt="icon">
+        {/if}
+        <span class="text-sm font-medium">{tab.title}</span>
+      </div>
 			<div class="flex gap-6">
 				<Button
 					onClick={() => {

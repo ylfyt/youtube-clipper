@@ -9,6 +9,7 @@ export const storageDriver = {
 				count: value.count ?? 0,
 				videos: new Map(jsonVideo),
 				includedUrls: value.includedUrls ?? [],
+        isLight: value.isLight
 			};
 			return storage;
 		} catch (error) {
