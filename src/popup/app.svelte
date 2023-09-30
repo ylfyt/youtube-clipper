@@ -12,6 +12,8 @@
 
 	let init = false;
 	let isLight: boolean = false;
+	let isClipper = false;
+
 	const updateTheme = () => {
 		if (!init) {
 			return;
@@ -37,10 +39,12 @@
 		storage.set(res);
 		isLight = res.isLight;
 		init = true;
-		console.log('res', res);
-	});
 
-	let isClipper = false;
+		const tabs = await chrome.tabs.query({ active: true });
+		if (tabs[0]?.url?.includes('youtube.com/watch')) {
+			isClipper = true;
+		}
+	});
 </script>
 
 <main class="min-w-[500px] p-2 bg-light dark:bg-dark flex flex-col items-center text-dark dark:text-light">
