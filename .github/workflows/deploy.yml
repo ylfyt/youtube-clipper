@@ -1,0 +1,60 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: 16 # You can change the Node.js version as needed
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Build
+      run: npm run build # Replace with your build command
+
+    - name: Upload The Output
+      uses: actions/upload-artifact@v3
+      with:
+        name: dist
+        path: dist/
+  release:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+    - name: Download artifact
+      uses: actions/download-artifact@v3
+      with:
+        name: dist
+    - name: Archive the output
+      uses: thedoctor0/zip-release@master
+      with:
+        filename: dist.zip
+    - name: Create Github release
+      id: create-new-release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.PAT }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ github.ref }}
+    - name: Upload release asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.PAT }}
+      with:
+        upload_url: ${{ steps.create-new-release.outputs.upload_url }}
+        asset_path: ./dist.zip
+        asset_name: youtube-clipper-v${{ github.ref }}.zip
+        asset_content_type: application/zip
