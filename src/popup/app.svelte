@@ -2,7 +2,6 @@
 	import CutIcon from '../assets/svg/cut-icon.svelte';
 	import SettingIcon from '../assets/svg/setting-icon.svelte';
 	import VolumeIcon from '../assets/svg/volume-icon.svelte';
-	import YoutubeIcon from '../assets/svg/youtube-icon.svelte';
 	import AudioController from './pages/audio-controller.svelte';
 	import ClipperPage from './pages/clipper-page.svelte';
 
@@ -16,17 +15,19 @@
 			on:click={() => {
 				isClipper = true;
 			}}
-			class={`fill-red-500 rounded py-1 w-full flex items-center justify-center ${isClipper ? 'bg-primary fill-white' : 'bg-slate-300'}`}
+			class={`fill-red-500 rounded py-1 w-full flex items-center justify-center gap-2 text-sm font-semibold ${isClipper ? 'bg-primary fill-white text-white' : 'bg-slate-300'}`}
 		>
 			<CutIcon width={20} />
+			<span>Youtube Clipper</span>
 		</button>
 		<button
 			on:click={() => {
 				isClipper = false;
 			}}
-			class={`fill-red-500 rounded py-1 w-full flex items-center justify-center ${isClipper ? 'bg-slate-300' : 'bg-primary fill-white'}`}
+			class={`fill-red-500 rounded py-1 w-full flex items-center justify-center gap-2 text-sm font-semibold ${isClipper ? 'bg-slate-300' : 'bg-primary fill-white text-white'}`}
 		>
 			<VolumeIcon width={20} />
+			<span>Media Control</span>
 		</button>
 	</div>
 	{#if isClipper}
