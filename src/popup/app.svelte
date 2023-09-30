@@ -7,12 +7,23 @@
 	import AudioController from './pages/audio-controller.svelte';
 	import ClipperPage from './pages/clipper-page.svelte';
 	import { storage } from './stores/storage';
-	import MinusIcon from '../assets/svg/minus-icon.svelte';
 	import MoonIcon from '../assets/svg/moon-icon.svelte';
 	import SunIcon from '../assets/svg/sun-icon.svelte';
 
 	let init = false;
+	let isLight: boolean = false;
+	const updateTheme = () => {
+		if (!init) {
+			return;
+		}
+		storage.update((prev) => {
+			prev.isLight = isLight;
+			return prev;
+		});
+		document.body.classList.toggle('dark');
+	};
 
+	$: isLight, updateTheme();
 	$: $storage,
 		(async () => {
 			if (!init) {
@@ -23,27 +34,24 @@
 
 	onMount(async () => {
 		const res = await storageDriver.get();
-		init = true;
 		storage.set(res);
+		isLight = res.isLight;
+		init = true;
+		console.log('res', res);
 	});
 
-	let isClipper = true;
+	let isClipper = false;
 </script>
 
 <main class="min-w-[500px] p-2 bg-light dark:bg-dark flex flex-col items-center text-dark dark:text-light">
 	<div class="flex items-center gap-2 w-full">
 		<button
 			on:click={() => {
-				storage.update((prev) => {
-					prev.isLight = !prev.isLight;
-					return prev;
-				});
-
-				document.body.classList.toggle('dark');
+				isLight = !isLight;
 			}}
 			class="fill-yellow-400 mr-1"
 		>
-			{#if $storage.isLight}
+			{#if isLight}
 				<MoonIcon width={18} />
 			{:else}
 				<SunIcon width={18} />
@@ -54,7 +62,9 @@
 			on:click={() => {
 				isClipper = true;
 			}}
-			class={`fill-red-500 rounded py-1 w-full flex items-center justify-center gap-2 text-sm font-semibold ${isClipper ? 'bg-primary fill-white text-white' : 'bg-slate-300'}`}
+			class={`fill-red-500 rounded py-1 w-full flex items-center justify-center gap-2 text-sm font-semibold ${
+				isClipper ? 'bg-color0  dark:fill-white dark:text-white fill-dark text-dark' : 'bg-slate-300 text-dark'
+			}`}
 		>
 			<CutIcon width={20} />
 			<span>Youtube Clipper</span>
@@ -63,7 +73,9 @@
 			on:click={() => {
 				isClipper = false;
 			}}
-			class={`fill-red-500 rounded py-1 w-full flex items-center justify-center gap-2 text-sm font-semibold ${isClipper ? 'bg-slate-300' : 'bg-primary fill-white text-white'}`}
+			class={`fill-red-500 rounded py-1 w-full flex items-center justify-center gap-2 text-sm font-semibold ${
+				isClipper ? 'bg-slate-300 text-dark' : 'bg-color0  dark:fill-white dark:text-white fill-dark text-dark'
+			}`}
 		>
 			<VolumeIcon width={20} />
 			<span>Media Control</span>

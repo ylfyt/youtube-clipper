@@ -229,10 +229,10 @@
 
 <div class="flex flex-col gap-2 w-full">
 	{#each tabs as tab}
-		<div class="flex w-full justify-between p-2 bg-primary gap-2 rounded text-white flex-col shadow-md">
+		<div class="flex w-full justify-between border-[1px] border-color0 p-1.5 gap-2 rounded flex-col shadow">
 			<div class="flex items-start gap-2">
         {#if tab.iconUrl}
-          <img width="20px" src={tab.iconUrl} alt="icon">
+          <img width="18px" src={tab.iconUrl} alt="icon">
         {/if}
         <span class="text-sm font-medium">{tab.title}</span>
       </div>
@@ -243,9 +243,9 @@
 					}}
 				>
 					{#if tab.isMuted}
-						<MutedIcon width={14} />
+						<MutedIcon width={12} />
 					{:else}
-						<VolumeIcon width={14} />
+						<VolumeIcon width={12} />
 					{/if}
 				</Button>
 				{#if tab.isYoutube}
@@ -255,7 +255,7 @@
 								downVolume(tab.id ?? 0);
 							}}
 						>
-							<MinusIcon width={14} />
+							<MinusIcon width={12} />
 						</Button>
 						<span class="bg-[#abdeee] text-black w-[30px] py-0.5 rounded flex items-center justify-center h-full">{Math.floor(tab.volume)}</span>
 						<Button
@@ -263,7 +263,7 @@
 								upVolume(tab.id ?? 0);
 							}}
 						>
-							<PlusIcon width={14} />
+							<PlusIcon width={12} />
 						</Button>
 					</div>
 					<div class="flex items-center justify-center gap-2">
@@ -273,7 +273,7 @@
 								prev(tab.id ?? 0);
 							}}
 						>
-							<PrevIcon width={14} />
+							<PrevIcon width={12} />
 						</Button>
 						<Button
 							onClick={() => {
@@ -281,9 +281,9 @@
 							}}
 						>
 							{#if tab.isPaused}
-								<PlayIcon width={14} />
+								<PlayIcon width={12} />
 							{:else}
-								<PauseIcon width={14} />
+								<PauseIcon width={12} />
 							{/if}
 						</Button>
 						<Button
@@ -291,7 +291,7 @@
 								next(tab.id ?? 0);
 							}}
 						>
-							<NextIcon width={14} />
+							<NextIcon width={12} />
 						</Button>
 					</div>
 				{/if}

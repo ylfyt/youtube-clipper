@@ -1,8 +1,8 @@
 <script lang="ts">
 	export let bgColor: string = 'bg-secondary';
-	export let width: string = 'w-[30px]';
+	export let width: string = 'w-[24px]';
 	export let onClick: (() => void) | undefined = undefined;
   export let hide = false
 </script>
 
-<button on:click={onClick} class={`${bgColor} ${width} py-0.5 rounded flex justify-center items-center fill-white ${hide? 'invisible': 'visible'}`}> <slot /> </button>
+<button on:click={onClick} class={`${bgColor} ${width} rounded flex justify-center h-[24px] items-center fill-dark dark:fill-light ${hide? 'invisible': 'visible'}`}> <slot /> </button>
