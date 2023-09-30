@@ -122,7 +122,7 @@
 	}
 </script>
 
-<div class="w-full mb-4">
+<div class="w-full">
   <div class="flex gap-2">
     <img width="20px" src={tab.favIconUrl} alt="icon">
     <span class="text-sm font-medium">{tab.title}</span>

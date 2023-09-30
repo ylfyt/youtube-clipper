@@ -67,14 +67,14 @@
 	{/if}
 
 	{#if !videos}
-		<button class="bg-color0 px-2 py-1 rounded-md font-semibold text-dark dark:text-white" on:click={loadAllVideos}>Show Saved Videos</button>
+		<button class="bg-color0 px-2 py-1 rounded-md font-semibold text-dark dark:text-white mt-4" on:click={loadAllVideos}>Show Saved Videos</button>
 	{:else if videos.length === 0}
-		<h1 class="w-full text-center text-base">There is no video yet</h1>
+		<h1 class="w-full text-center text-base mt-4 font-medium">There is no video yet</h1>
 	{:else}
-		<ul class="w-full">
+		<ul class={`w-full ${videoId ? 'mt-4' : ''}`}>
 			{#each videos as item}
-				<li style="display: flex; align-items:start; border:solid; border-width: 2px; border-radius: 10px; padding: 5px;justify-content: space-between;margin-bottom:4px">
-					<a target="_blank" class="text-red-400" href="http://youtube.com/watch?v={item.id}">{item.title}</a>
+				<li class="flex items-center justify-between border-[1px] border-color0 px-2 py-1 rounded">
+					<a target="_blank" class="font-medium" href="http://youtube.com/watch?v={item.id}">{item.title}</a>
 					<button
 						on:click={() => {
 							removeSavedVideo(item);
