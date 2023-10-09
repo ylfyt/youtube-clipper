@@ -53,7 +53,7 @@
 					isPlaylist: false,
 					id: tab.id,
 					isPaused: true,
-          iconUrl: tab.favIconUrl
+					iconUrl: tab.favIconUrl,
 				});
 				continue;
 			}
@@ -77,7 +77,7 @@
 				isPlaylist: !!tab.url?.includes('list='),
 				id: tab.id,
 				isPaused: res?.[0]?.result?.isPaused,
-        iconUrl: tab.favIconUrl
+				iconUrl: tab.favIconUrl,
 			});
 		}
 		tabs = temp;
@@ -231,11 +231,11 @@
 	{#each tabs as tab}
 		<div class="flex w-full justify-between border-[1px] border-color0 p-1.5 gap-2 rounded flex-col shadow">
 			<div class="flex items-start gap-2">
-        {#if tab.iconUrl}
-          <img width="18px" src={tab.iconUrl} alt="icon">
-        {/if}
-        <span class="text-sm font-medium">{tab.title}</span>
-      </div>
+				{#if tab.iconUrl}
+					<img width="18px" src={tab.iconUrl} alt="icon" />
+				{/if}
+				<span class="text-sm font-medium">{tab.title}</span>
+			</div>
 			<div class="flex gap-6">
 				<Button
 					onClick={() => {
@@ -268,6 +268,7 @@
 					</div>
 					<div class="flex items-center justify-center gap-2">
 						<Button
+							bgColor="bg-orange-500"
 							hide={!tab.isPlaylist}
 							onClick={() => {
 								prev(tab.id ?? 0);
@@ -276,6 +277,7 @@
 							<PrevIcon width={12} />
 						</Button>
 						<Button
+							bgColor="bg-orange-500"
 							onClick={() => {
 								togglePlay(tab.id ?? 0);
 							}}
@@ -287,6 +289,7 @@
 							{/if}
 						</Button>
 						<Button
+							bgColor="bg-orange-500"
 							onClick={() => {
 								next(tab.id ?? 0);
 							}}

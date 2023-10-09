@@ -39,11 +39,6 @@
 		storage.set(res);
 		isLight = res.isLight;
 		init = true;
-
-		const tabs = await chrome.tabs.query({ active: true });
-		if (tabs[0]?.url?.includes('youtube.com/watch')) {
-			isClipper = true;
-		}
 	});
 </script>
 
