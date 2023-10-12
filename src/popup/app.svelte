@@ -22,7 +22,11 @@
 			prev.isLight = isLight;
 			return prev;
 		});
-		document.body.classList.toggle('dark');
+		if (isLight) {
+			document.body.classList.remove('dark');
+		} else {
+			document.body.classList.add('dark');
+		}
 	};
 
 	$: isLight, updateTheme();
