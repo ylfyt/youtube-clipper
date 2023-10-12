@@ -13,6 +13,8 @@
 	import { storage } from '../stores/storage';
 	import { storageDriver } from '../../storage-driver';
 	import LoopIcon from '../../assets/svg/loop-icon.svelte';
+	import RewindIcon from '../../assets/svg/rewind-icon.svelte';
+	import ForwardIcon from '../../assets/svg/forward-icon.svelte';
 
 	let tabs: ITab[] = [];
 	let init = false;
@@ -248,6 +250,25 @@
 			return tab;
 		});
 	};
+
+	const seekVideo = async (tabId: number, second: number) => {
+		await chrome.scripting.executeScript<
+			{
+				second: number;
+			}[],
+			void
+		>({
+			func: (...args: { second: number }[]) => {
+				const video: any = document.getElementById('movie_player');
+				video && video.seekBy(args[0].second);
+			},
+			target: {
+				tabId,
+			},
+			world: 'MAIN',
+			args: [{ second }],
+		});
+	};
 </script>
 
 <div class="flex flex-col gap-2 w-full">
@@ -300,6 +321,14 @@
 							<PrevIcon width={12} />
 						</Button>
 						<Button
+							onClick={() => {
+								seekVideo(tab.id ?? 0, -10);
+							}}
+							bgColor="bg-orange-500"
+						>
+							<RewindIcon width={12} />
+						</Button>
+						<Button
 							bgColor="bg-orange-500"
 							onClick={() => {
 								togglePlay(tab.id ?? 0);
@@ -310,6 +339,14 @@
 							{:else}
 								<PauseIcon width={12} />
 							{/if}
+						</Button>
+						<Button
+							onClick={() => {
+								seekVideo(tab.id ?? 0, 10);
+							}}
+							bgColor="bg-orange-500"
+						>
+							<ForwardIcon width={12} />
 						</Button>
 						<Button
 							bgColor="bg-orange-500"
