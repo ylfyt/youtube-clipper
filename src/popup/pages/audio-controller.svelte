@@ -12,6 +12,7 @@
 	import PlayIcon from '../../assets/svg/play-icon.svelte';
 	import { storage } from '../stores/storage';
 	import { storageDriver } from '../../storage-driver';
+	import LoopIcon from '../../assets/svg/loop-icon.svelte';
 
 	let tabs: ITab[] = [];
 	let init = false;
@@ -54,6 +55,7 @@
 					id: tab.id,
 					isPaused: true,
 					iconUrl: tab.favIconUrl,
+					isLoop: false,
 				});
 				continue;
 			}
@@ -64,6 +66,7 @@
 					return {
 						volume: video?.getVolume() ?? 0,
 						isPaused: document.querySelector('video')?.paused ?? false,
+						isLoop: video?.getLoopVideo() ?? false,
 					};
 				},
 				target: { tabId: tab.id! },
@@ -73,11 +76,12 @@
 				isMuted: !!tab.mutedInfo?.muted,
 				isYoutube: true,
 				title: tab.title ?? '',
-				volume: res?.[0]?.result.volume,
+				volume: res[0].result.volume,
 				isPlaylist: !!tab.url?.includes('list='),
 				id: tab.id,
-				isPaused: res?.[0]?.result?.isPaused,
+				isPaused: res[0].result?.isPaused,
 				iconUrl: tab.favIconUrl,
+				isLoop: res[0].result.isLoop,
 			});
 		}
 		tabs = temp;
@@ -225,6 +229,25 @@
 			return tab;
 		});
 	};
+
+	const toggleLoop = async (tabId: number) => {
+		await chrome.scripting.executeScript({
+			func: () => {
+				const video: any = document.getElementById('movie_player');
+				video && video.setLoopVideo(!video.getLoopVideo());
+			},
+			target: {
+				tabId,
+			},
+			world: 'MAIN',
+		});
+		tabs = tabs.map((tab) => {
+			if (tab.id === tabId) {
+				tab.isLoop = !tab.isLoop;
+			}
+			return tab;
+		});
+	};
 </script>
 
 <div class="flex flex-col gap-2 w-full">
@@ -295,6 +318,17 @@
 							}}
 						>
 							<NextIcon width={12} />
+						</Button>
+					</div>
+					<div>
+						<Button
+							onClick={() => {
+								toggleLoop(tab.id ?? 0);
+							}}
+							title={`Loop ${tab.isLoop ? 'ON' : 'OFF'}`}
+							bgColor={tab.isLoop ? 'bg-green-500' : 'bg-red-500'}
+						>
+							<LoopIcon width={12} />
 						</Button>
 					</div>
 				{/if}

@@ -6,5 +6,6 @@ export interface ITab {
 	isPlaylist: boolean;
 	isPaused: boolean;
 	volume: number;
-  iconUrl?: string
+	iconUrl?: string;
+	isLoop: boolean;
 }
