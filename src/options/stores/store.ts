@@ -1,5 +1,5 @@
 import { writable } from 'svelte/store';
-import type { IStorage } from '../../interfaces/storage';
+import type { IStorage } from '../../storage-driver';
 
 export const storage = writable<IStorage>({
 	count: 0,

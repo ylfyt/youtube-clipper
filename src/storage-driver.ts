@@ -1,4 +1,14 @@
-import type { IStorage } from './interfaces/storage';
+import type { IVideo } from './interfaces/video';
+
+export type IStorage = {
+	count: number;
+	videos: Map<string, IVideo>;
+	includedUrls: string[];
+	isLight: boolean;
+	rewindTime?: number; // in seconds
+	forwardTime?: number; // in seconds
+	alwaysLoop?: boolean;
+};
 
 export const storageDriver = {
 	get: async (): Promise<IStorage> => {
@@ -9,7 +19,10 @@ export const storageDriver = {
 				count: value.count ?? 0,
 				videos: new Map(jsonVideo),
 				includedUrls: value.includedUrls ?? [],
-        isLight: value.isLight
+				isLight: value.isLight,
+				rewindTime: value.rewindTime ?? 10,
+				forwardTime: value.forwardTime ?? 10,
+				alwaysLoop: value.alwaysLoop ?? false,
 			};
 			return storage;
 		} catch (error) {

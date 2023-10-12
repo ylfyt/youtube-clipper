@@ -8,7 +8,6 @@
 <input
 	bind:value={inputValue}
 	type="text"
-	id="first_name"
 	class={`${
 		className ?? ''
 	} rounded-lg w-full p-2.5 text-sm focus:outline-none border-2 border-gray-300 dark:border-gray-800 focus:border-blue-400 dark:focus:border-blue-400 dark:placeholder:text-gray-600`}

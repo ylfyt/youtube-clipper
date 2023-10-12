@@ -8,9 +8,14 @@
 	let included = '';
 	let message = '';
 	let loop = false;
+	let rewindTime: string = '';
+	let forwardTime: string = '';
 
 	onMount(() => {
 		included = $storage.includedUrls.join(', ');
+		rewindTime = $storage.rewindTime!.toString();
+		forwardTime = $storage.forwardTime!.toString();
+		loop = $storage.alwaysLoop!;
 	});
 </script>
 
@@ -22,11 +27,11 @@
 	<div class="flex gap-2">
 		<div class="w-full">
 			<label for="included" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Rewind Time (s)</label>
-			<Input placeHolder="10" className="bg-light dark:bg-dark" />
+			<Input bind:inputValue={rewindTime} placeHolder="10" className="bg-light dark:bg-dark" />
 		</div>
 		<div class="w-full">
 			<label for="included" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Forward Time (s)</label>
-			<Input placeHolder="10" className="bg-light dark:bg-dark" />
+			<Input bind:inputValue={forwardTime} placeHolder="10" className="bg-light dark:bg-dark" />
 		</div>
 	</div>
 	<div class="flex items-center justify-between w-full">
@@ -35,16 +40,31 @@
 	</div>
 	<Button
 		onClick={() => {
+			const rewind = parseInt(rewindTime);
+			const forward = parseInt(forwardTime);
+			if (isNaN(rewind) || rewind < 0) {
+				message = 'Rewind time must be > 0';
+				return;
+			}
+			if (isNaN(forward) || forward < 0) {
+				message = 'Forward time must be > 0';
+				return;
+			}
+
 			const stringWithoutSpaces = included
 				.split('')
 				.filter((char) => !/\s/.test(char))
 				.join('');
+
 			storage.update((prev) => {
 				if (stringWithoutSpaces == '') {
 					prev.includedUrls = [];
 				} else {
 					prev.includedUrls = stringWithoutSpaces.split(',');
 				}
+				prev.rewindTime = rewind;
+				prev.forwardTime = forward;
+				prev.alwaysLoop = loop;
 				return prev;
 			});
 			message = 'Saved';
