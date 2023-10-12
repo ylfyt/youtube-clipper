@@ -8,7 +8,6 @@
 	import SunIcon from '../assets/svg/sun-icon.svelte';
 
 	let init = false;
-	let included = '';
 	let isLight = true;
 
 	const updateTheme = () => {
@@ -19,8 +18,6 @@
 			prev.isLight = isLight;
 			return prev;
 		});
-
-		console.log('test', isLight);
 
 		if (isLight) {
 			document.body.classList.remove('dark');
@@ -44,7 +41,6 @@
 		storage.set(res);
 
 		isLight = res.isLight;
-		included = res.includedUrls.join(',');
 	});
 </script>
 
@@ -65,6 +61,10 @@
 				{/if}
 			</button>
 		</div>
-		<Home />
+		{#if !init}
+			<div>Please wait...</div>
+		{:else}
+			<Home />
+		{/if}
 	</Container>
 </div>
