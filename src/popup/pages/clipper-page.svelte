@@ -42,20 +42,22 @@
 	function loadAllVideos() {
 		const storedVideos = $storage.videos;
 		const temp: IVideo[] = [];
-		for (let video of storedVideos) {
-			temp.push(video[1]);
+		for (let key of Object.keys(storedVideos)) {
+			const video = storedVideos[key];
+			temp.push(video);
 		}
 		videos = temp;
 	}
 
 	async function removeSavedVideo(video: IVideo) {
 		storage.update((prev) => {
-			prev.videos.delete(video.id);
+			delete prev.videos[video.id];
 			return prev;
 		});
 		const temp: IVideo[] = [];
-		for (let video of $storage.videos) {
-			temp.push(video[1]);
+		for (let key of Object.keys($storage.videos)) {
+			const video = $storage.videos[key];
+			temp.push(video);
 		}
 		videos = temp;
 	}
