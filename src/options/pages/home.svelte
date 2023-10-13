@@ -24,7 +24,7 @@
 		<label for="included" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Included URLs for Tab Control</label>
 		<Input bind:inputValue={included} placeHolder="youtube.com, zoom.com" className="bg-light dark:bg-dark" />
 	</div>
-	<div class="flex gap-2">
+	<div class="flex gap-2 w-full">
 		<div class="w-full">
 			<label for="included" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Rewind Time (s)</label>
 			<Input bind:inputValue={rewindTime} placeHolder="10" className="bg-light dark:bg-dark" />
