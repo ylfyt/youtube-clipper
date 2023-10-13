@@ -10,9 +10,12 @@
 	import { auth } from './utils/firebase';
 	import { onAuthStateChanged } from 'firebase/auth';
 	import { authUser } from './stores/user-store';
+	import Register from './pages/register.svelte';
+	import Login from './pages/login.svelte';
 
 	let init = false;
 	let isLight = true;
+	let path: '' | 'register' | 'login' = '';
 
 	const updateTheme = () => {
 		if (!init) {
@@ -49,9 +52,11 @@
 
 	onAuthStateChanged(auth, async (user) => {
 		authUser.set(user);
+		if (user) {
+			path = '';
+		}
 	});
 
-	const login = async () => {};
 	const logout = async () => {
 		auth.currentUser && (await auth.signOut());
 	};
@@ -59,14 +64,13 @@
 
 <div class="h-screen bg-light dark:bg-dark text-dark dark:text-light flex justify-center">
 	<Container>
-		<div class="flex justify-between items-center px-2 my-2 lg:my-4">
-			<h1 class="text-lg">Options</h1>
+		<div class="flex justify-between items-center my-2 lg:my-4">
+			{#if $authUser}
+				<span class="text-sm">{$authUser.email}</span>
+			{:else}
+				<span class="text-lg">Options</span>
+			{/if}
 			<div class="flex gap-4">
-				{#if $authUser}
-					<Button onClick={() => logout()}>Logout</Button>
-				{:else}
-					<Button onClick={() => login()}>Login</Button>
-				{/if}
 				<button
 					class="fill-yellow-400"
 					on:click={() => {
@@ -79,12 +83,25 @@
 						<SunIcon width={18} />
 					{/if}
 				</button>
+				{#if $authUser}
+					<Button onClick={() => logout()}>Logout</Button>
+				{:else if path !== ''}
+					<Button onClick={() => (path = '')}>Back</Button>
+				{:else}
+					<Button onClick={() => (path = 'register')}>Register</Button>
+					<Button onClick={() => (path = 'login')}>Login</Button>
+				{/if}
 			</div>
 		</div>
+		<div class="py-[1px] w-full bg-color0 mb-4" />
 		{#if !init}
 			<div>Please wait...</div>
-		{:else}
+		{:else if path === ''}
 			<Home />
+		{:else if path === 'register'}
+			<Register />
+		{:else if path === 'login'}
+			<Login />
 		{/if}
 	</Container>
 </div>
