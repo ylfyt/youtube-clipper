@@ -57,7 +57,4 @@ export default defineManifest(async (env) => ({
 	},
 	permissions: ['activeTab', 'tabs', 'scripting', 'storage'] as chrome.runtime.ManifestPermissions[],
 	host_permissions: ['http://*/', 'https://*/'],
-	content_security_policy: {
-		sandbox: "sandbox allow-scripts; script-src 'self' https://www.gstatic.com/ https://*.firebaseio.com https://www.googleapis.com",
-	},
 }));

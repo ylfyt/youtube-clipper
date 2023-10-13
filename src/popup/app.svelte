@@ -9,6 +9,9 @@
 	import { storage } from './stores/storage';
 	import MoonIcon from '../assets/svg/moon-icon.svelte';
 	import SunIcon from '../assets/svg/sun-icon.svelte';
+	import { onAuthStateChanged } from 'firebase/auth';
+	import { auth } from './utils/firebase';
+	import { authUser } from './stores/user-store';
 
 	let init = false;
 	let isLight: boolean = false;
@@ -43,6 +46,12 @@
 		storage.set(res);
 		isLight = res.isLight;
 		init = true;
+	});
+
+	onAuthStateChanged(auth, async (user) => {
+		authUser.set(user);
+
+		console.log('USER', user);
 	});
 </script>
 

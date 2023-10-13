@@ -7,10 +7,9 @@
 	import MoonIcon from '../assets/svg/moon-icon.svelte';
 	import SunIcon from '../assets/svg/sun-icon.svelte';
 	import Button from './components/button.svelte';
-	import { auth, db } from './utils/firebase';
-	import { GoogleAuthProvider, onAuthStateChanged, signInWithPopup } from 'firebase/auth';
+	import { auth } from './utils/firebase';
+	import { onAuthStateChanged } from 'firebase/auth';
 	import { authUser } from './stores/user-store';
-	import { doc, getDoc, getDocs, query } from 'firebase/firestore';
 
 	let init = false;
 	let isLight = true;
@@ -46,27 +45,13 @@
 		storage.set(res);
 
 		isLight = res.isLight;
-
-		const ref = doc(db, 'clipper', '1');
-		getDoc(ref).then((res) => {
-      const data = res.data()
-			console.log('RES', data);
-		});
 	});
 
 	onAuthStateChanged(auth, async (user) => {
 		authUser.set(user);
 	});
 
-	const loginWithGoogle = async () => {
-		const provider = new GoogleAuthProvider();
-		signInWithPopup(auth, provider)
-			.then(() => {})
-			.catch((error) => {
-				console.log(error);
-			});
-	};
-
+	const login = async () => {};
 	const logout = async () => {
 		auth.currentUser && (await auth.signOut());
 	};
@@ -80,7 +65,7 @@
 				{#if $authUser}
 					<Button onClick={() => logout()}>Logout</Button>
 				{:else}
-					<Button onClick={() => loginWithGoogle()}>Login</Button>
+					<Button onClick={() => login()}>Login</Button>
 				{/if}
 				<button
 					class="fill-yellow-400"
