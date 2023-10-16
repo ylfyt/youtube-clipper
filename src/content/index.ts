@@ -45,7 +45,7 @@ interface IVideo {
 }
 
 async function executeVideo(videoId: string) {
-	const video = (await storageDriver.get()).videos.get(videoId);
+	const video = (await storageDriver.get()).videos[videoId];
 	if (!video) {
 		return;
 	}

@@ -50,6 +50,10 @@
 				const val = $storage.videos[key];
 				syncedStorage.videos[key] = val;
 			}
+			syncedStorage.alwaysLoop = $storage.alwaysLoop;
+			syncedStorage.forwardTime = $storage.forwardTime;
+			syncedStorage.includedUrls = $storage.includedUrls;
+			syncedStorage.isLight = $storage.isLight;
 
 			const docRef = doc(db, 'clipper', $authUser.uid) as DocumentReference<IStorage>;
 			await setDoc(docRef, syncedStorage);

@@ -25,7 +25,7 @@
 	$: isCanSave = !!clips.find((clip) => clip.start || clip.end || loop);
 
 	onMount(async () => {
-		const video = $storage.videos.get(id);
+		const video = $storage.videos[id];
 		if (!video) {
 			return;
 		}
@@ -84,12 +84,12 @@
 		}
 
 		storage.update((prev) => {
-			prev.videos.set(id, {
+			prev.videos[id] = {
 				id,
 				title: tab.title!,
 				clips: videoClips,
 				loop: loop,
-			});
+			};
 			return prev;
 		});
 		message = 'Saved';
@@ -97,7 +97,7 @@
 
 	async function clearVideo() {
 		storage.update((prev) => {
-			prev.videos.delete(id);
+			delete prev.videos[id];
 			return prev;
 		});
 
@@ -123,24 +123,14 @@
 </script>
 
 <div class="w-full">
-  <div class="flex gap-2">
-    <img width="20px" src={tab.favIconUrl} alt="icon">
-    <span class="text-sm font-medium">{tab.title}</span>
-  </div>
+	<div class="flex gap-2">
+		<img width="20px" src={tab.favIconUrl} alt="icon" />
+		<span class="text-sm font-medium">{tab.title}</span>
+	</div>
 	<div class="flex justify-between items-center mt-4">
 		<div class="flex gap-2 items-center">
-			<button
-				disabled={!isCanSave}
-				on:click={saveVideo}
-				class="font-semibold bg-color0 py-1 w-[70px] rounded-md disabled:opacity-80 disabled:cursor-not-allowed"
-				>Save</button
-			>
-			<button
-				on:click={clearVideo}
-				disabled={!isCanSave}
-				class="text-dark font-semibold bg-red-400 py-1 w-[70px] rounded-md disabled:opacity-80 disabled:cursor-not-allowed"
-				>Clear</button
-			>
+			<button disabled={!isCanSave} on:click={saveVideo} class="font-semibold bg-color0 py-1 w-[70px] rounded-md disabled:opacity-80 disabled:cursor-not-allowed">Save</button>
+			<button on:click={clearVideo} disabled={!isCanSave} class="text-dark font-semibold bg-red-400 py-1 w-[70px] rounded-md disabled:opacity-80 disabled:cursor-not-allowed">Clear</button>
 			{#if message != ''}
 				<p class="ml-2 text-green-500 font-medium text-xs">{message}</p>
 			{/if}
