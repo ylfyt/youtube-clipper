@@ -61,6 +61,41 @@
 			}
 		}
 	};
+
+	const save = async () => {
+		const rewind = parseInt(rewindTime);
+		const forward = parseInt(forwardTime);
+		if (isNaN(rewind) || rewind < 0) {
+			message = 'Rewind time must be > 0';
+			return;
+		}
+		if (isNaN(forward) || forward < 0) {
+			message = 'Forward time must be > 0';
+			return;
+		}
+
+		const stringWithoutSpaces = included
+			.split('')
+			.filter((char) => !/\s/.test(char))
+			.join('');
+
+		storage.update((prev) => {
+			if (stringWithoutSpaces == '') {
+				prev.includedUrls = [];
+			} else {
+				prev.includedUrls = stringWithoutSpaces.split(',');
+			}
+			prev.rewindTime = rewind;
+			prev.forwardTime = forward;
+			prev.alwaysLoop = loop;
+			return prev;
+		});
+		if (!$authUser) {
+			message = 'Saved';
+			return;
+		}
+		sync();
+	};
 </script>
 
 <div class="flex flex-col items-center gap-4">
@@ -82,42 +117,7 @@
 		<span class="text-sm font-medium">Always loop Youtube (except playlist)</span>
 		<Switch bind:isChecked={loop} />
 	</div>
-	<Button
-		onClick={() => {
-			const rewind = parseInt(rewindTime);
-			const forward = parseInt(forwardTime);
-			if (isNaN(rewind) || rewind < 0) {
-				message = 'Rewind time must be > 0';
-				return;
-			}
-			if (isNaN(forward) || forward < 0) {
-				message = 'Forward time must be > 0';
-				return;
-			}
-
-			const stringWithoutSpaces = included
-				.split('')
-				.filter((char) => !/\s/.test(char))
-				.join('');
-
-			storage.update((prev) => {
-				if (stringWithoutSpaces == '') {
-					prev.includedUrls = [];
-				} else {
-					prev.includedUrls = stringWithoutSpaces.split(',');
-				}
-				prev.rewindTime = rewind;
-				prev.forwardTime = forward;
-				prev.alwaysLoop = loop;
-				return prev;
-			});
-			if (!$authUser) {
-				message = 'Saved';
-				return;
-			}
-			sync();
-		}}>Save</Button
-	>
+	<Button onClick={() => save()}>Save</Button>
 	{#if message.length !== 0}
 		<div>{message}</div>
 	{/if}

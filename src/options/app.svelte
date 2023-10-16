@@ -47,7 +47,7 @@
 		init = true;
 		storage.set(res);
 
-		isLight = res.isLight;
+    isLight = res.isLight;
 	});
 
 	onAuthStateChanged(auth, async (user) => {
@@ -84,7 +84,7 @@
 					{/if}
 				</button>
 				{#if $authUser}
-					<Button onClick={() => logout()}>Logout</Button>
+					<Button className="bg-red-500" onClick={() => logout()}>Logout</Button>
 				{:else if path !== ''}
 					<Button onClick={() => (path = '')}>Back</Button>
 				{:else}
