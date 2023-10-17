@@ -1,5 +1,5 @@
 export interface ITab {
-	id?: number;
+	id: number;
 	title: string;
 	isYoutube: boolean;
 	isMuted: boolean;
@@ -8,4 +8,5 @@ export interface ITab {
 	volume: number;
 	iconUrl?: string;
 	isLoop: boolean;
+	isShuffled?: boolean;
 }

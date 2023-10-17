@@ -43,7 +43,7 @@
 					title: tab.title ?? '',
 					volume: 0,
 					isPlaylist: false,
-					id: tab.id,
+					id: tab.id ?? 0,
 					isPaused: true,
 					iconUrl: tab.favIconUrl,
 					isLoop: false,
@@ -54,10 +54,13 @@
 			const res = await chrome.scripting.executeScript({
 				func: () => {
 					const video = document.getElementById('movie_player') as any;
+					const shuffleButton = document.querySelector('[aria-label="Shuffle playlist"]');
+					const isShuffled = shuffleButton?.getAttribute('aria-pressed') === 'true';
 					return {
 						volume: video?.getVolume() ?? 0,
 						isPaused: document.querySelector('video')?.paused ?? false,
 						isLoop: video?.getLoopVideo() ?? false,
+						isShuffled,
 					};
 				},
 				target: { tabId: tab.id! },
@@ -69,10 +72,11 @@
 				title: tab.title ?? '',
 				volume: res[0].result.volume,
 				isPlaylist: !!tab.url?.includes('list='),
-				id: tab.id,
+				id: tab.id ?? 0,
 				isPaused: res[0].result?.isPaused,
 				iconUrl: tab.favIconUrl,
 				isLoop: res[0].result.isLoop,
+				isShuffled: res[0].result.isShuffled,
 			});
 		}
 		tabs = temp;

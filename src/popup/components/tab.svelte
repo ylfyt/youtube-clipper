@@ -9,6 +9,7 @@
 	import PlusIcon from '../../assets/svg/plus-icon.svelte';
 	import PrevIcon from '../../assets/svg/prev-icon.svelte';
 	import RewindIcon from '../../assets/svg/rewind-icon.svelte';
+	import ShuffleIcon from '../../assets/svg/shuffle-icon.svelte';
 	import VolumeIcon from '../../assets/svg/volume-icon.svelte';
 	import type { ITab } from '../../interfaces/tab';
 	import Button from './button.svelte';
@@ -178,6 +179,25 @@
 		});
 	};
 
+	const toggleShuffle = async (tabId: number) => {
+		await chrome.scripting.executeScript({
+			func: () => {
+				const shuffleButton = document.querySelector('[aria-label="Shuffle playlist"]') as HTMLButtonElement;
+				shuffleButton?.click();
+			},
+			target: {
+				tabId,
+			},
+			world: 'MAIN',
+		});
+		tabs = tabs.map((tab) => {
+			if (tab.id === tabId) {
+				tab.isShuffled = !tab.isShuffled;
+			}
+			return tab;
+		});
+	};
+
 	const seekVideo = async (tabId: number, second: number) => {
 		await chrome.scripting.executeScript<
 			{
@@ -209,7 +229,7 @@
 		<Button
 			title="Mute/Unmute"
 			onClick={() => {
-				toggleMute(tab.id ?? 0, tab.isMuted);
+				toggleMute(tab.id, tab.isMuted);
 			}}
 		>
 			{#if tab.isMuted}
@@ -223,7 +243,7 @@
 				<Button
 					title="Decrease volume"
 					onClick={() => {
-						downVolume(tab.id ?? 0);
+						downVolume(tab.id);
 					}}
 				>
 					<MinusIcon width={12} />
@@ -232,7 +252,7 @@
 				<Button
 					title="Increase volume"
 					onClick={() => {
-						upVolume(tab.id ?? 0);
+						upVolume(tab.id);
 					}}
 				>
 					<PlusIcon width={12} />
@@ -244,7 +264,7 @@
 					bgColor="bg-orange-500"
 					hide={!tab.isPlaylist}
 					onClick={() => {
-						prev(tab.id ?? 0);
+						prev(tab.id);
 					}}
 				>
 					<PrevIcon width={12} />
@@ -252,7 +272,7 @@
 				<Button
 					title="Rewind 10s"
 					onClick={() => {
-						seekVideo(tab.id ?? 0, -10);
+						seekVideo(tab.id, -10);
 					}}
 					bgColor="bg-orange-500"
 				>
@@ -262,7 +282,7 @@
 					title="Play/Pause"
 					bgColor="bg-orange-500"
 					onClick={() => {
-						togglePlay(tab.id ?? 0);
+						togglePlay(tab.id);
 					}}
 				>
 					{#if tab.isPaused}
@@ -274,7 +294,7 @@
 				<Button
 					title="Forward 10s"
 					onClick={() => {
-						seekVideo(tab.id ?? 0, 10);
+						seekVideo(tab.id, 10);
 					}}
 					bgColor="bg-orange-500"
 				>
@@ -284,22 +304,33 @@
 					title="Next"
 					bgColor="bg-orange-500"
 					onClick={() => {
-						next(tab.id ?? 0);
+						next(tab.id);
 					}}
 				>
 					<NextIcon width={12} />
 				</Button>
 			</div>
-			<div>
+			<div class="flex gap-2">
 				<Button
 					onClick={() => {
-						toggleLoop(tab.id ?? 0);
+						toggleLoop(tab.id);
 					}}
 					title={`Loop ${tab.isLoop ? 'ON' : 'OFF'}`}
 					bgColor={tab.isLoop ? 'bg-green-500' : 'bg-red-500'}
 				>
 					<LoopIcon width={12} />
 				</Button>
+				{#if tab.isPlaylist}
+					<Button
+						onClick={() => {
+							toggleShuffle(tab.id);
+						}}
+						title={`Shuffle ${tab.isShuffled ? 'ON' : 'OFF'}`}
+						bgColor={tab.isShuffled ? 'bg-green-500' : 'bg-red-500'}
+					>
+						<ShuffleIcon width={12} />
+					</Button>
+				{/if}
 			</div>
 		{/if}
 	</div>
