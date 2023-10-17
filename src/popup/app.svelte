@@ -92,7 +92,6 @@
 			storage.update((prev) => {
 				return {
 					videos,
-					count: 0,
 					lastSync: new Date().getTime(),
 					includedUrls: cloudBehind ? prev.includedUrls : synced.includedUrls,
 					isLight: cloudBehind ? prev.isLight : synced.isLight,

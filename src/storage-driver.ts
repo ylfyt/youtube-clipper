@@ -1,7 +1,6 @@
 import type { IVideo } from './interfaces/video';
 
 export type IStorage = {
-	count: number;
 	videos: { [key: string]: IVideo };
 	includedUrls: string[];
 	isLight: boolean;
@@ -16,7 +15,6 @@ export const storageDriver = {
 		try {
 			const value = await chrome.storage.sync.get();
 			const storage: IStorage = {
-				count: value.count ?? 0,
 				videos: value.videos ?? {},
 				includedUrls: value.includedUrls ?? [],
 				isLight: value.isLight,
