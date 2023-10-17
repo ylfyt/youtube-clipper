@@ -19,6 +19,7 @@
 	let init = false;
 	let isLight: boolean = false;
 	let isClipper = false;
+	let loadingUser = true;
 
 	const updateTheme = () => {
 		if (!init) {
@@ -65,6 +66,7 @@
 	});
 
 	onAuthStateChanged(auth, async (user) => {
+		loadingUser = false;
 		console.log('USER', user);
 		authUser.set(user);
 		if (!user) {
@@ -143,10 +145,11 @@
 			<VolumeIcon width={20} />
 			<span>Media Control</span>
 		</button>
-		{#if $authUser}
+		{#if $authUser || loadingUser}
 			<button
 				title="Logout"
 				on:click={async () => {
+					if (loadingUser) return;
 					const yes = confirm('Are you sure to logout?');
 					if (!yes) {
 						return;
