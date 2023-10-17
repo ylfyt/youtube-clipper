@@ -6,4 +6,5 @@ export const storage = writable<IStorage>({
 	videos: {},
 	includedUrls: [],
 	isLight: false,
+	lastSync: 0,
 });

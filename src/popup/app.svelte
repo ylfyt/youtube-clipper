@@ -94,7 +94,17 @@
 			<span>Media Control</span>
 		</button>
 		{#if $authUser}
-			<button title="Logout" class="fill-red-500 mr-1">
+			<button
+				title="Logout"
+				on:click={async () => {
+					const yes = confirm('Are you sure to logout?');
+					if (!yes) {
+						return;
+					}
+					await auth.signOut();
+				}}
+				class="fill-red-500 mr-1"
+			>
 				<ExitIcon width={24} height={24} />
 			</button>
 		{/if}

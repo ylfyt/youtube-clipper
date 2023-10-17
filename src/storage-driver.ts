@@ -8,6 +8,7 @@ export type IStorage = {
 	rewindTime?: number; // in seconds
 	forwardTime?: number; // in seconds
 	alwaysLoop?: boolean;
+	lastSync?: number;
 };
 
 export const storageDriver = {
@@ -22,6 +23,7 @@ export const storageDriver = {
 				rewindTime: value.rewindTime ?? 10,
 				forwardTime: value.forwardTime ?? 10,
 				alwaysLoop: value.alwaysLoop ?? false,
+				lastSync: value.lastSync ?? 0,
 			};
 			return storage;
 		} catch (error) {
