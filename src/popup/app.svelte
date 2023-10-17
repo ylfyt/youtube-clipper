@@ -13,7 +13,8 @@
 	import { auth, db } from './utils/firebase';
 	import { authUser } from './stores/user-store';
 	import ExitIcon from '../assets/svg/exit-icon.svelte';
-	import { DocumentReference, doc, setDoc } from 'firebase/firestore';
+	import { DocumentReference, doc, getDoc, setDoc } from 'firebase/firestore';
+	import type { IVideo } from '../interfaces/video';
 
 	let init = false;
 	let isLight: boolean = false;
@@ -64,9 +65,45 @@
 	});
 
 	onAuthStateChanged(auth, async (user) => {
-		authUser.set(user);
-
 		console.log('USER', user);
+		authUser.set(user);
+		if (!user) {
+			return;
+		}
+		try {
+			const docRef = doc(db, 'clipper', user.uid) as DocumentReference<IStorage>;
+			const docSnap = await getDoc(docRef);
+			const synced = docSnap.data();
+			if (!synced) {
+				sync($storage);
+				return;
+			}
+			if (synced.lastSync === $storage.lastSync) {
+				return;
+			}
+			const videos: { [key: string]: IVideo } = {};
+			for (let id of Object.keys(synced.videos)) {
+				videos[id] = synced.videos[id];
+			}
+			for (let id of Object.keys($storage.videos)) {
+				videos[id] = $storage.videos[id];
+			}
+			const cloudBehind = synced.lastSync! < $storage.lastSync!;
+			storage.update((prev) => {
+				return {
+					videos,
+					count: 0,
+					lastSync: new Date().getTime(),
+					includedUrls: cloudBehind ? prev.includedUrls : synced.includedUrls,
+					isLight: cloudBehind ? prev.isLight : synced.isLight,
+					alwaysLoop: cloudBehind ? prev.alwaysLoop : synced.alwaysLoop,
+					forwardTime: cloudBehind ? prev.forwardTime : synced.forwardTime,
+					rewindTime: cloudBehind ? prev.rewindTime : synced.rewindTime,
+				};
+			});
+		} catch (error) {
+			console.log('ERROR', error);
+		}
 	});
 </script>
 
