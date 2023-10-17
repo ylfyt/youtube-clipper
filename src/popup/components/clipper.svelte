@@ -8,10 +8,6 @@
 	import type { IVideoClip } from '../../interfaces/clip-time';
 	import CloseButton from './close-button.svelte';
 	import AddButton from './add-button.svelte';
-	import type { IStorage } from '../../storage-driver';
-	import { authUser } from '../stores/user-store';
-	import { DocumentReference, doc, setDoc } from 'firebase/firestore';
-	import { db } from '../utils/firebase';
 
 	export let tab: chrome.tabs.Tab;
 	export let id: string;
@@ -88,6 +84,7 @@
 		}
 
 		storage.update((prev) => {
+			prev.lastSync = new Date().getTime();
 			prev.videos[id] = {
 				id,
 				title: tab.title!,
@@ -97,29 +94,11 @@
 			return prev;
 		});
 		message = 'Saved';
-		sync($storage);
 	}
-
-	const sync = async (newStorage: IStorage) => {
-		if (!$authUser) {
-			return;
-		}
-		try {
-			const syncTime = new Date().getTime();
-			newStorage.lastSync = syncTime;
-			const docRef = doc(db, 'clipper', $authUser.uid) as DocumentReference<IStorage>;
-			await setDoc(docRef, newStorage);
-			storage.update((prev) => {
-				prev.lastSync = syncTime;
-				return prev;
-			});
-		} catch (error) {
-			console.log('ERROR', error);
-		}
-	};
 
 	async function clearVideo() {
 		storage.update((prev) => {
+			prev.lastSync = new Date().getTime();
 			delete prev.videos[id];
 			return prev;
 		});

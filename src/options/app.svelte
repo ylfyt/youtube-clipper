@@ -1,17 +1,18 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { storageDriver } from '../storage-driver';
+	import { storageDriver, type IStorage } from '../storage-driver';
 	import { storage } from './stores/store';
 	import Home from './pages/home.svelte';
 	import Container from './components/container.svelte';
 	import MoonIcon from '../assets/svg/moon-icon.svelte';
 	import SunIcon from '../assets/svg/sun-icon.svelte';
 	import Button from './components/button.svelte';
-	import { auth } from './utils/firebase';
+	import { auth, db } from './utils/firebase';
 	import { onAuthStateChanged } from 'firebase/auth';
 	import { authUser } from './stores/user-store';
 	import Register from './pages/register.svelte';
 	import Login from './pages/login.svelte';
+	import { DocumentReference, doc, setDoc } from 'firebase/firestore';
 
 	let init = false;
 	let isLight = true;
@@ -33,6 +34,18 @@
 		}
 	};
 
+	const sync = async (newStorage: IStorage) => {
+		if (!$authUser) {
+			return;
+		}
+		try {
+			const docRef = doc(db, 'clipper', $authUser.uid) as DocumentReference<IStorage>;
+			await setDoc(docRef, newStorage);
+		} catch (error) {
+			console.log('ERROR', error);
+		}
+	};
+
 	$: isLight, updateTheme();
 	$: $storage,
 		(async () => {
@@ -40,6 +53,7 @@
 				return;
 			}
 			await storageDriver.set($storage);
+			sync($storage);
 		})();
 
 	onMount(async () => {

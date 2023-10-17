@@ -3,16 +3,17 @@
 	import CutIcon from '../assets/svg/cut-icon.svelte';
 	import SettingIcon from '../assets/svg/setting-icon.svelte';
 	import VolumeIcon from '../assets/svg/volume-icon.svelte';
-	import { storageDriver } from '../storage-driver';
+	import { storageDriver, type IStorage } from '../storage-driver';
 	import AudioController from './pages/audio-controller.svelte';
 	import ClipperPage from './pages/clipper-page.svelte';
 	import { storage } from './stores/storage';
 	import MoonIcon from '../assets/svg/moon-icon.svelte';
 	import SunIcon from '../assets/svg/sun-icon.svelte';
 	import { onAuthStateChanged } from 'firebase/auth';
-	import { auth } from './utils/firebase';
+	import { auth, db } from './utils/firebase';
 	import { authUser } from './stores/user-store';
 	import ExitIcon from '../assets/svg/exit-icon.svelte';
+	import { DocumentReference, doc, setDoc } from 'firebase/firestore';
 
 	let init = false;
 	let isLight: boolean = false;
@@ -33,6 +34,18 @@
 		}
 	};
 
+	const sync = async (newStorage: IStorage) => {
+		if (!$authUser) {
+			return;
+		}
+		try {
+			const docRef = doc(db, 'clipper', $authUser.uid) as DocumentReference<IStorage>;
+			await setDoc(docRef, newStorage);
+		} catch (error) {
+			console.log('ERROR', error);
+		}
+	};
+
 	$: isLight, updateTheme();
 	$: $storage,
 		(async () => {
@@ -40,6 +53,7 @@
 				return;
 			}
 			await storageDriver.set($storage);
+			sync($storage);
 		})();
 
 	onMount(async () => {

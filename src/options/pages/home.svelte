@@ -4,17 +4,12 @@
 	import Input from '../components/input.svelte';
 	import { storage } from '../stores/store';
 	import Switch from '../components/switch.svelte';
-	import { authUser } from '../stores/user-store';
-	import { DocumentReference, doc, getDoc, setDoc } from 'firebase/firestore';
-	import { db } from '../utils/firebase';
-	import type { IStorage } from '../../storage-driver';
 
 	let included = '';
 	let message = '';
 	let loop = false;
 	let rewindTime: string = '';
 	let forwardTime: string = '';
-	let syncedStorage: IStorage | undefined = undefined;
 
 	onMount(() => {
 		included = $storage.includedUrls.join(', ');
@@ -22,49 +17,6 @@
 		forwardTime = $storage.forwardTime!.toString();
 		loop = $storage.alwaysLoop!;
 	});
-
-	const getUserDoc = async () => {
-		if (!$authUser) {
-			return;
-		}
-		const docRef = doc(db, 'clipper', $authUser.uid) as DocumentReference<IStorage>;
-		const docSnap = await getDoc(docRef);
-		if (!docSnap.exists()) {
-			return;
-		}
-		syncedStorage = docSnap.data();
-		console.log('SYNC', syncedStorage);
-	};
-
-	$: $authUser, getUserDoc();
-
-	const sync = async () => {
-		if (!$authUser) {
-			return;
-		}
-		try {
-			if (!syncedStorage) {
-				syncedStorage = $storage;
-			}
-			for (let key of Object.keys($storage.videos)) {
-				const val = $storage.videos[key];
-				syncedStorage.videos[key] = val;
-			}
-			syncedStorage.alwaysLoop = $storage.alwaysLoop;
-			syncedStorage.forwardTime = $storage.forwardTime;
-			syncedStorage.includedUrls = $storage.includedUrls;
-			syncedStorage.isLight = $storage.isLight;
-
-			const docRef = doc(db, 'clipper', $authUser.uid) as DocumentReference<IStorage>;
-			await setDoc(docRef, syncedStorage);
-			message = 'Saved';
-		} catch (error) {
-			console.log('ERROR', error);
-			if (error instanceof Error) {
-				message = error.message;
-			}
-		}
-	};
 
 	const save = async () => {
 		const rewind = parseInt(rewindTime);
@@ -84,6 +36,7 @@
 			.join('');
 
 		storage.update((prev) => {
+			prev.lastSync = new Date().getTime();
 			if (stringWithoutSpaces == '') {
 				prev.includedUrls = [];
 			} else {
@@ -94,11 +47,7 @@
 			prev.alwaysLoop = loop;
 			return prev;
 		});
-		if (!$authUser) {
-			message = 'Saved';
-			return;
-		}
-		sync();
+		message = 'Saved';
 	};
 </script>
 

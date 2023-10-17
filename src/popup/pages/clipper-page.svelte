@@ -2,11 +2,8 @@
 	import { onMount } from 'svelte';
 	import Clipper from '../components/clipper.svelte';
 	import type { IVideo } from '../../interfaces/video';
-	import { storageDriver, type IStorage } from '../../storage-driver';
+	import { storageDriver } from '../../storage-driver';
 	import { storage } from '../stores/storage';
-	import { DocumentReference, doc, getDoc, setDoc } from 'firebase/firestore';
-	import { db } from '../utils/firebase';
-	import { authUser } from '../stores/user-store';
 
 	let youtubeTab: chrome.tabs.Tab | undefined;
 	let videoId: string | undefined | null;
@@ -52,26 +49,9 @@
 		videos = temp;
 	}
 
-	const sync = async (newStorage: IStorage) => {
-		if (!$authUser) {
-			return;
-		}
-		try {
-			const syncTime = new Date().getTime();
-			newStorage.lastSync = syncTime;
-			const docRef = doc(db, 'clipper', $authUser.uid) as DocumentReference<IStorage>;
-			await setDoc(docRef, newStorage);
-			storage.update((prev) => {
-				prev.lastSync = syncTime;
-				return prev;
-			});
-		} catch (error) {
-			console.log('ERROR', error);
-		}
-	};
-
 	async function removeSavedVideo(video: IVideo) {
 		storage.update((prev) => {
+			prev.lastSync = new Date().getTime();
 			delete prev.videos[video.id];
 			return prev;
 		});
@@ -81,7 +61,6 @@
 			temp.push(video);
 		}
 		videos = temp;
-		sync($storage);
 	}
 </script>
 
