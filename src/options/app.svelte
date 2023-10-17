@@ -47,7 +47,7 @@
 		init = true;
 		storage.set(res);
 
-    isLight = res.isLight;
+		isLight = res.isLight;
 	});
 
 	onAuthStateChanged(auth, async (user) => {
@@ -66,7 +66,7 @@
 	<Container>
 		<div class="flex justify-between items-center my-2 lg:my-4">
 			{#if $authUser}
-				<span class="text-sm">{$authUser.email}</span>
+				<span class="text-sm"> Hey, {$authUser.email} 👋</span>
 			{:else}
 				<span class="text-lg">Options</span>
 			{/if}

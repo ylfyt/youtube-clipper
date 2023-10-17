@@ -12,6 +12,7 @@
 	import { onAuthStateChanged } from 'firebase/auth';
 	import { auth } from './utils/firebase';
 	import { authUser } from './stores/user-store';
+	import ExitIcon from '../assets/svg/exit-icon.svelte';
 
 	let init = false;
 	let isLight: boolean = false;
@@ -92,6 +93,11 @@
 			<VolumeIcon width={20} />
 			<span>Media Control</span>
 		</button>
+		{#if $authUser}
+			<button title="Logout" class="fill-red-500 mr-1">
+				<ExitIcon width={24} height={24} />
+			</button>
+		{/if}
 	</div>
 	<div class="h-[2px] bg-color0 w-full mt-2 mb-2" />
 	{#if isClipper}
