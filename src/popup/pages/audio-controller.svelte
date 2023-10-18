@@ -46,36 +46,62 @@
 					id: tab.id ?? 0,
 					isPaused: true,
 					iconUrl: tab.favIconUrl,
-					isLoop: false,
+					loopState: 0,
 				});
 				continue;
 			}
 
-			const res = await chrome.scripting.executeScript({
-				func: () => {
+			const isPlaylist = !!tab.url?.includes('list=');
+
+			const res = await chrome.scripting.executeScript<
+				{ isPlaylist: boolean }[],
+				{
+					volume: number;
+					isPaused: boolean;
+					loopState: number;
+					isShuffled: boolean;
+				}
+			>({
+				func: (
+					...args: {
+						isPlaylist: boolean;
+					}[]
+				) => {
 					const video = document.getElementById('movie_player') as any;
+					let loopState = 0; // loop is turned off
+					if (args[0].isPlaylist) {
+						if (document.querySelector('[aria-label="Loop video"]')) {
+							loopState = 1; // loop playlist
+						} else if (document.querySelector('[aria-label="Turn off loop"]')) {
+							loopState = 2; // loop video
+						}
+					} else {
+						loopState = !!video?.getLoopVideo() ? 2 : 0;
+					}
+
 					const shuffleButton = document.querySelector('[aria-label="Shuffle playlist"]');
 					const isShuffled = shuffleButton?.getAttribute('aria-pressed') === 'true';
 					return {
 						volume: video?.getVolume() ?? 0,
 						isPaused: document.querySelector('video')?.paused ?? false,
-						isLoop: video?.getLoopVideo() ?? false,
+						loopState,
 						isShuffled,
 					};
 				},
 				target: { tabId: tab.id! },
 				world: 'MAIN',
+				args: [{ isPlaylist }],
 			});
 			temp.push({
 				isMuted: !!tab.mutedInfo?.muted,
 				isYoutube: true,
 				title: tab.title ?? '',
 				volume: res[0].result.volume,
-				isPlaylist: !!tab.url?.includes('list='),
+				isPlaylist,
 				id: tab.id ?? 0,
 				isPaused: res[0].result?.isPaused,
 				iconUrl: tab.favIconUrl,
-				isLoop: res[0].result.isLoop,
+				loopState: res[0].result.loopState,
 				isShuffled: res[0].result.isShuffled,
 			});
 		}

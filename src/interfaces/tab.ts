@@ -7,6 +7,6 @@ export interface ITab {
 	isPaused: boolean;
 	volume: number;
 	iconUrl?: string;
-	isLoop: boolean;
+	loopState: number;
 	isShuffled?: boolean;
 }

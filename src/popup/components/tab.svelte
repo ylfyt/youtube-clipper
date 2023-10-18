@@ -161,19 +161,48 @@
 	};
 
 	const toggleLoop = async (tabId: number) => {
-		await chrome.scripting.executeScript({
-			func: () => {
-				const video: any = document.getElementById('movie_player');
-				video && video.setLoopVideo(!video.getLoopVideo());
+		const res = await chrome.scripting.executeScript<
+			{
+				isPlaylist: boolean;
+			}[],
+			{
+				loopState: number;
+			}
+		>({
+			func: (...args: { isPlaylist: boolean }[]) => {
+				if (!args[0].isPlaylist) {
+					const video: any = document.getElementById('movie_player');
+					video && video.setLoopVideo(!video.getLoopVideo());
+					return { loopState: !!video?.getLoopVideo() ? 2 : 0 };
+				}
+
+				let loopState = 0;
+				if (document.querySelector('[aria-label="Loop video"]')) {
+					loopState = 1; // loop playlist
+				} else if (document.querySelector('[aria-label="Turn off loop"]')) {
+					loopState = 2; // loop video
+				}
+				const button: any = document.querySelector('[aria-label="Loop video"]') || document.querySelector('[aria-label="Loop playlist"]') || document.querySelector('[aria-label="Turn off loop"]');
+				button?.click();
+				loopState++;
+				if (loopState > 2) {
+					loopState = 0;
+				}
+				return { loopState };
 			},
 			target: {
 				tabId,
 			},
 			world: 'MAIN',
+			args: [
+				{
+					isPlaylist: tab.isPlaylist,
+				},
+			],
 		});
 		tabs = tabs.map((tab) => {
 			if (tab.id === tabId) {
-				tab.isLoop = !tab.isLoop;
+				tab.loopState = res[0].result.loopState;
 			}
 			return tab;
 		});
@@ -315,8 +344,8 @@
 					onClick={() => {
 						toggleLoop(tab.id);
 					}}
-					title={`Loop ${tab.isLoop ? 'ON' : 'OFF'}`}
-					bgColor={tab.isLoop ? 'bg-green-500' : 'bg-red-500'}
+					title={`Loop ${tab.loopState ? 'ON' : 'OFF'}`}
+					bgColor={!tab.isPlaylist ? (!tab.loopState ? 'bg-red-500' : 'bg-green-500') : !tab.loopState ? 'bg-red-500' : tab.loopState === 1 ? 'bg-green-500' : 'bg-orange-500'}
 				>
 					<LoopIcon width={12} />
 				</Button>
