@@ -8,6 +8,7 @@
 	let included = '';
 	let message = '';
 	let loop = false;
+	let shuffle = false;
 	let rewindTime: string = '';
 	let forwardTime: string = '';
 
@@ -16,6 +17,7 @@
 		rewindTime = $storage.rewindTime!.toString();
 		forwardTime = $storage.forwardTime!.toString();
 		loop = $storage.alwaysLoop!;
+		shuffle = $storage.alwaysShuffle!;
 	});
 
 	const save = async () => {
@@ -45,6 +47,7 @@
 			prev.rewindTime = rewind;
 			prev.forwardTime = forward;
 			prev.alwaysLoop = loop;
+			prev.alwaysShuffle = shuffle;
 			return prev;
 		});
 		message = 'Saved';
@@ -69,6 +72,10 @@
 	<div class="flex items-center justify-between w-full">
 		<span class="text-sm font-medium">Always loop Youtube (except playlist)</span>
 		<Switch bind:isChecked={loop} />
+	</div>
+	<div class="flex items-center justify-between w-full">
+		<span class="text-sm font-medium">Always shuffle Youtube playlist</span>
+		<Switch bind:isChecked={shuffle} />
 	</div>
 	<Button onClick={() => save()}>Save</Button>
 	{#if message.length !== 0}

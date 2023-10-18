@@ -8,6 +8,7 @@ export type IStorage = {
 	forwardTime?: number; // in seconds
 	alwaysLoop?: boolean;
 	lastSync?: number;
+	alwaysShuffle?: boolean;
 };
 
 export const storageDriver = {
@@ -22,6 +23,7 @@ export const storageDriver = {
 				forwardTime: value.forwardTime ?? 10,
 				alwaysLoop: value.alwaysLoop ?? false,
 				lastSync: value.lastSync ?? 0,
+				alwaysShuffle: value.alwaysShuffle,
 			};
 			return storage;
 		} catch (error) {

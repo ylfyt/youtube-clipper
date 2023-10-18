@@ -45,7 +45,26 @@ interface IVideo {
 }
 
 async function executeVideo(videoId: string) {
-	const video = (await storageDriver.get()).videos[videoId];
+	const storage = await storageDriver.get();
+	const isPlaylist = window.location.href.indexOf('list=') !== -1;
+	if (isPlaylist && storage.alwaysShuffle) {
+		setTimeout(() => {
+			console.log('PERFORM ALWAYS SHUFFLE');
+			const shuffleButton = document.querySelector('[aria-label="Shuffle playlist"]') as HTMLButtonElement;
+			const isShuffled = shuffleButton?.getAttribute('aria-pressed') === 'true';
+			if (!isShuffled) {
+				shuffleButton?.click();
+			}
+		}, 2000);
+	}
+	if (!isPlaylist && storage.alwaysLoop) {
+		setTimeout(() => {
+			console.log('PERFORM ALWAYS LOOP');
+			document.querySelector('video')?.setAttribute('loop', 'true');
+		}, 2000);
+	}
+
+	const video = storage.videos[videoId];
 	if (!video) {
 		return;
 	}
