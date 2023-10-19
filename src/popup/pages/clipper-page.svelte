@@ -74,7 +74,7 @@
 	{:else if videos.length === 0}
 		<h1 class="w-full text-center text-base mt-4 font-medium">There is no video yet</h1>
 	{:else}
-		<ul class={`w-full ${videoId ? 'mt-4' : ''}`}>
+		<ul class={`w-full flex flex-col gap-1 ${videoId ? 'mt-4' : ''}`}>
 			{#each videos as item}
 				<li class="flex items-center justify-between border-[1px] border-color0 px-2 py-1 rounded">
 					<a target="_blank" class="font-medium" href="http://youtube.com/watch?v={item.id}">{item.title}</a>

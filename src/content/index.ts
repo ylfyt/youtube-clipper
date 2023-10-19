@@ -44,6 +44,10 @@ interface IVideo {
 	id: string;
 }
 
+function getRandomNumber(min: number, max: number) {
+	return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
 async function executeVideo(videoId: string) {
 	const storage = await storageDriver.get();
 	const isPlaylist = window.location.href.indexOf('list=') !== -1;
@@ -105,18 +109,30 @@ async function executeVideo(videoId: string) {
 
 		const isPlaylist = window.location.href.indexOf('list=') !== -1;
 		if (isPlaylist) {
-			const keyEvent = new KeyboardEvent('keydown', {
-				key: 'n',
-				keyCode: 78,
-				code: 'KeyN',
-				which: 78,
-				shiftKey: true,
-				ctrlKey: false,
-				metaKey: false,
-			});
-			document.dispatchEvent(keyEvent);
 			controller?.abort();
 			controller = undefined;
+
+			const playlist = document.querySelectorAll('#playlist-items');
+			if (playlist.length === 0) {
+				console.log('WHY 0???');
+				return;
+			}
+
+			const shuffleButton = document.querySelector('[aria-label="Shuffle playlist"]') as HTMLButtonElement;
+			const isShuffled = shuffleButton?.getAttribute('aria-pressed') === 'true';
+			if (isShuffled) {
+				const nextIdx = getRandomNumber(0, playlist.length - 1);
+				const a = playlist.item(nextIdx).children[0] as any;
+				a.click();
+				return;
+			}
+
+			const idx = parseInt(new URLSearchParams(window.location.href).get('index') ?? '') ?? 1;
+			let nextIdx = idx + 1;
+			if (nextIdx >= playlist.length) {
+				nextIdx = 1;
+			}
+			(playlist.item(nextIdx - 1).children[0] as any).click();
 			return;
 		}
 
