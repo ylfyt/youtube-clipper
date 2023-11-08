@@ -5,14 +5,52 @@ console.log('================= YT CLIPPER =================');
 let controller: AbortController | undefined;
 
 function addLocationObserver(callback: MutationCallback) {
-	const config = { attributes: false, childList: true, subtree: false };
+	const config: MutationObserverInit = { attributes: false, childList: true, subtree: false };
 	const observer = new MutationObserver(callback);
 
 	observer.observe(document.body, config);
 }
 
+let init = false;
 let prevId = '';
 function observerCallback() {
+  if (window.location.href.indexOf('youtube.com') === -1) {
+		return;
+	}
+
+	if (!init) {
+		const adsContainer: HTMLElement | null = document.querySelector('.video-ads');
+		if (adsContainer) {
+			init = true;
+			const mutationCallback = function (mutations: MutationRecord[], observer: MutationObserver) {
+				if (mutations.length === 0) {
+					return;
+				}
+				if (mutations[0].addedNodes.length === 0) {
+					return;
+				}
+        console.log("NEW ADS");
+				setTimeout(() => {
+					console.log('TRYING TO SKIP');
+					const button: HTMLButtonElement | null = document.querySelector('.ytp-ad-skip-button');
+					if (!button) {
+						console.log('NO SKIP BUTTON');
+						return;
+					}
+					console.log('PERFOM SKIP ADS');
+					button.click();
+				}, 1000);
+			};
+			const observer = new MutationObserver(mutationCallback);
+
+			// Define which types of mutations to observe (in this case, we're interested in childList mutations)
+			const config = { childList: true };
+
+			// Start observing the target node with the specified configuration
+			observer.observe(adsContainer, config);
+		}
+	}
+
 	if (window.location.href.indexOf('youtube.com/watch') === -1) {
 		return;
 	}
@@ -62,10 +100,10 @@ async function executeVideo(videoId: string) {
 		}, 2000);
 	}
 	if (!isPlaylist && storage.alwaysLoop) {
-		setTimeout(() => {
-			console.log('PERFORM ALWAYS LOOP');
-			document.querySelector('video')?.setAttribute('loop', 'true');
-		}, 2000);
+		// setTimeout(() => {
+		// 	console.log('PERFORM ALWAYS LOOP');
+		// 	document.querySelector('video')?.setAttribute('loop', 'true');
+		// }, 2000);
 	}
 
 	const video = storage.videos[videoId];
