@@ -13,14 +13,16 @@ function addLocationObserver(callback: MutationCallback) {
 
 let init = false;
 let prevId = '';
-function observerCallback() {
-  if (window.location.href.indexOf('youtube.com') === -1) {
+async function observerCallback() {
+	if (window.location.href.indexOf('youtube.com') === -1) {
 		return;
 	}
+	const storage = await storageDriver.get();
 
-	if (!init) {
+	if (!init && storage.autoSkipAd) {
 		const adsContainer: HTMLElement | null = document.querySelector('.video-ads');
 		if (adsContainer) {
+			console.log('PERFORM AUTO SKIP');
 			init = true;
 			const mutationCallback = function (mutations: MutationRecord[], observer: MutationObserver) {
 				if (mutations.length === 0) {
@@ -29,7 +31,7 @@ function observerCallback() {
 				if (mutations[0].addedNodes.length === 0) {
 					return;
 				}
-        console.log("NEW ADS");
+				console.log('NEW ADS');
 				setTimeout(() => {
 					console.log('TRYING TO SKIP');
 					const button: HTMLButtonElement | null = document.querySelector('.ytp-ad-skip-button');

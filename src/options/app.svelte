@@ -102,6 +102,7 @@
 					alwaysLoop: cloudBehind ? prev.alwaysLoop : synced.alwaysLoop,
 					forwardTime: cloudBehind ? prev.forwardTime : synced.forwardTime,
 					rewindTime: cloudBehind ? prev.rewindTime : synced.rewindTime,
+					autoSkipAd: cloudBehind ? prev.autoSkipAd : synced.autoSkipAd,
 				};
 			});
 		} catch (error) {

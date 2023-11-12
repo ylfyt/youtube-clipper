@@ -11,6 +11,7 @@
 	let shuffle = false;
 	let rewindTime: string = '';
 	let forwardTime: string = '';
+	let autoSkip: boolean = false;
 
 	onMount(() => {
 		included = $storage.includedUrls.join(', ');
@@ -18,6 +19,8 @@
 		forwardTime = $storage.forwardTime!.toString();
 		loop = $storage.alwaysLoop!;
 		shuffle = $storage.alwaysShuffle!;
+		autoSkip = $storage.autoSkipAd!;
+    
 	});
 
 	const save = async () => {
@@ -48,6 +51,7 @@
 			prev.forwardTime = forward;
 			prev.alwaysLoop = loop;
 			prev.alwaysShuffle = shuffle;
+			prev.autoSkipAd = autoSkip;
 			return prev;
 		});
 		message = 'Saved';
@@ -76,6 +80,10 @@
 	<div class="flex items-center justify-between w-full">
 		<span class="text-sm font-medium">Always shuffle Youtube playlist</span>
 		<Switch bind:isChecked={shuffle} />
+	</div>
+	<div class="flex items-center justify-between w-full">
+		<span class="text-sm font-medium">Auto Skip Youtube Ads</span>
+		<Switch bind:isChecked={autoSkip} />
 	</div>
 	<Button onClick={() => save()}>Save</Button>
 	{#if message.length !== 0}

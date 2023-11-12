@@ -9,6 +9,7 @@ export type IStorage = {
 	alwaysLoop?: boolean;
 	lastSync?: number;
 	alwaysShuffle?: boolean;
+  autoSkipAd?: boolean;
 };
 
 export const storageDriver = {
@@ -24,6 +25,7 @@ export const storageDriver = {
 				alwaysLoop: value.alwaysLoop ?? false,
 				lastSync: value.lastSync ?? 0,
 				alwaysShuffle: value.alwaysShuffle,
+        autoSkipAd: value.autoSkipAd ?? false
 			};
 			return storage;
 		} catch (error) {
