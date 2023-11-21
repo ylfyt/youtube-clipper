@@ -35,7 +35,8 @@
 			if ($storage.includedUrls.length !== 0 && !isIncluded(tab.url!)) {
 				continue;
 			}
-			const isYoutube = tab.url?.includes('youtube.com/watch') || tab.url?.includes('youtube.com/shorts');
+			const isYoutubeMusic = !!tab.url?.includes('music.youtube.co');
+			const isYoutube = isYoutubeMusic || tab.url?.includes('youtube.com/watch') || tab.url?.includes('youtube.com/shorts');
 			if (!isYoutube) {
 				temp.push({
 					isMuted: !!tab.mutedInfo?.muted,
@@ -51,10 +52,10 @@
 				continue;
 			}
 
-			const isPlaylist = !!tab.url?.includes('list=');
+			const isPlaylist = isYoutubeMusic || !!tab.url?.includes('list=');
 
 			const res = await chrome.scripting.executeScript<
-				{ isPlaylist: boolean }[],
+				{ isPlaylist: boolean; isYoutubeMusic: boolean }[],
 				{
 					volume: number;
 					isPaused: boolean;
@@ -65,11 +66,18 @@
 				func: (
 					...args: {
 						isPlaylist: boolean;
+						isYoutubeMusic: boolean;
 					}[]
 				) => {
 					const video = document.getElementById('movie_player') as any;
 					let loopState = 0; // loop is turned off
-					if (args[0].isPlaylist) {
+					if (args[0].isYoutubeMusic) {
+						if (document.querySelector('[aria-label="Repeat all"]')) {
+							loopState = 1; // loop playlist
+						} else if (document.querySelector('[aria-label="Repeat one"]')) {
+							loopState = 2; // loop video
+						}
+					} else if (args[0].isPlaylist) {
 						if (document.querySelector('[aria-label="Loop video"]')) {
 							loopState = 1; // loop playlist
 						} else if (document.querySelector('[aria-label="Turn off loop"]')) {
@@ -90,11 +98,12 @@
 				},
 				target: { tabId: tab.id! },
 				world: 'MAIN',
-				args: [{ isPlaylist }],
+				args: [{ isPlaylist, isYoutubeMusic }],
 			});
 			temp.push({
 				isMuted: !!tab.mutedInfo?.muted,
 				isYoutube: true,
+				isYoutubeMusic,
 				title: tab.title ?? '',
 				volume: res[0].result.volume,
 				isPlaylist,

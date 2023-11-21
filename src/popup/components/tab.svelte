@@ -132,6 +132,33 @@
 	};
 
 	const togglePlay = async (tabId: number) => {
+		tabs = tabs.map((tab) => {
+			if (tab.id === tabId) {
+				tab.isPaused = !tab.isPaused;
+			}
+			return tab;
+		});
+
+		if (tab.isYoutubeMusic) {
+			await chrome.scripting.executeScript({
+				func: () => {
+					document.dispatchEvent(
+						new KeyboardEvent('keydown', {
+							key: ' ',
+							keyCode: 32,
+							which: 32,
+							shiftKey: false,
+							ctrlKey: false,
+							metaKey: false,
+						})
+					);
+				},
+				target: {
+					tabId,
+				},
+			});
+			return;
+		}
 		await chrome.scripting.executeScript({
 			func: () => {
 				document.dispatchEvent(
@@ -152,24 +179,19 @@
 				tabId,
 			},
 		});
-		tabs = tabs.map((tab) => {
-			if (tab.id === tabId) {
-				tab.isPaused = !tab.isPaused;
-			}
-			return tab;
-		});
 	};
 
 	const toggleLoop = async (tabId: number) => {
 		const res = await chrome.scripting.executeScript<
 			{
 				isPlaylist: boolean;
+				isYoutubeMusic: boolean;
 			}[],
 			{
 				loopState: number;
 			}
 		>({
-			func: (...args: { isPlaylist: boolean }[]) => {
+			func: (...args: { isPlaylist: boolean; isYoutubeMusic: boolean }[]) => {
 				if (!args[0].isPlaylist) {
 					const video: any = document.getElementById('movie_player');
 					video && video.setLoopVideo(!video.getLoopVideo());
@@ -177,12 +199,25 @@
 				}
 
 				let loopState = 0;
-				if (document.querySelector('[aria-label="Loop video"]')) {
-					loopState = 1; // loop playlist
-				} else if (document.querySelector('[aria-label="Turn off loop"]')) {
-					loopState = 2; // loop video
+				if (args[0].isYoutubeMusic) {
+					if (document.querySelector('[aria-label="Repeat all"]')) {
+						loopState = 1; // loop playlist
+					} else if (document.querySelector('[aria-label="Repeat one"]')) {
+						loopState = 2; // loop video
+					}
+				} else {
+					if (document.querySelector('[aria-label="Loop video"]')) {
+						loopState = 1; // loop playlist
+					} else if (document.querySelector('[aria-label="Turn off loop"]')) {
+						loopState = 2; // loop video
+					}
 				}
-				const button: any = document.querySelector('[aria-label="Loop video"]') || document.querySelector('[aria-label="Loop playlist"]') || document.querySelector('[aria-label="Turn off loop"]');
+				let button: any;
+				if (args[0].isYoutubeMusic) {
+					button = document.querySelector('[aria-label="Repeat one"]') || document.querySelector('[aria-label="Repeat all"]') || document.querySelector('[aria-label="Repeat off"]');
+				} else {
+					button = document.querySelector('[aria-label="Loop video"]') || document.querySelector('[aria-label="Loop playlist"]') || document.querySelector('[aria-label="Turn off loop"]');
+				}
 				button?.click();
 				loopState++;
 				if (loopState > 2) {
@@ -197,6 +232,7 @@
 			args: [
 				{
 					isPlaylist: tab.isPlaylist,
+					isYoutubeMusic: !!tab.isYoutubeMusic,
 				},
 			],
 		});
@@ -209,6 +245,27 @@
 	};
 
 	const toggleShuffle = async (tabId: number) => {
+		if (tab.isYoutubeMusic) {
+			await chrome.scripting.executeScript({
+				func: () => {
+					document.dispatchEvent(
+						new KeyboardEvent('keydown', {
+							key: 's',
+							keyCode: 83,
+							which: 83,
+							shiftKey: false,
+							ctrlKey: false,
+							metaKey: false,
+						})
+					);
+				},
+				target: {
+					tabId,
+				},
+			});
+			return;
+		}
+
 		await chrome.scripting.executeScript({
 			func: () => {
 				const shuffleButton = document.querySelector('[aria-label="Shuffle playlist"]') as HTMLButtonElement;
