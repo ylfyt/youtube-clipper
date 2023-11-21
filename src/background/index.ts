@@ -3,7 +3,30 @@ chrome.commands.onCommand.addListener(async (command) => {
 		const tabs = await chrome.tabs.query({});
 		for (let i = 0; i < tabs.length; i++) {
 			const tab = tabs[i];
-			if (!tab.url?.includes('youtube.com/watch?v=')) continue;
+			const isYoutubeMusic = !!tab.url?.includes('music.youtube.co');
+			if (!isYoutubeMusic && !tab.url?.includes('youtube.com/watch?v=')) continue;
+
+			if (isYoutubeMusic) {
+				await chrome.scripting.executeScript({
+					func: () => {
+						document.dispatchEvent(
+							new KeyboardEvent('keydown', {
+								key: ' ',
+								keyCode: 32,
+								which: 32,
+								shiftKey: false,
+								ctrlKey: false,
+								metaKey: false,
+							})
+						);
+					},
+					target: {
+						tabId: tab.id!,
+					},
+				});
+				return;
+			}
+
 			await chrome.scripting.executeScript({
 				func: () => {
 					document.dispatchEvent(
