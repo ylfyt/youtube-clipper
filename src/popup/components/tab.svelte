@@ -198,20 +198,16 @@
 					return { loopState: !!video?.getLoopVideo() ? 2 : 0 };
 				}
 
+				const playlistLoopState = args[0].isYoutubeMusic ? '[aria-label="Repeat all"]' : '[aria-label="Loop video"]';
+				const videoLoopState = args[0].isYoutubeMusic ? '[aria-label="Repeat one"]' : '[aria-label="Turn off loop"]';
+
 				let loopState = 0;
-				if (args[0].isYoutubeMusic) {
-					if (document.querySelector('[aria-label="Repeat all"]')) {
-						loopState = 1; // loop playlist
-					} else if (document.querySelector('[aria-label="Repeat one"]')) {
-						loopState = 2; // loop video
-					}
-				} else {
-					if (document.querySelector('[aria-label="Loop video"]')) {
-						loopState = 1; // loop playlist
-					} else if (document.querySelector('[aria-label="Turn off loop"]')) {
-						loopState = 2; // loop video
-					}
+				if (document.querySelector(playlistLoopState)) {
+					loopState = 1;
+				} else if (document.querySelector(videoLoopState)) {
+					loopState = 2;
 				}
+
 				let button: any;
 				if (args[0].isYoutubeMusic) {
 					button = document.querySelector('[aria-label="Repeat one"]') || document.querySelector('[aria-label="Repeat all"]') || document.querySelector('[aria-label="Repeat off"]');

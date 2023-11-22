@@ -71,17 +71,13 @@
 				) => {
 					const video = document.getElementById('movie_player') as any;
 					let loopState = 0; // loop is turned off
-					if (args[0].isYoutubeMusic) {
-						if (document.querySelector('[aria-label="Repeat all"]')) {
-							loopState = 1; // loop playlist
-						} else if (document.querySelector('[aria-label="Repeat one"]')) {
-							loopState = 2; // loop video
-						}
-					} else if (args[0].isPlaylist) {
-						if (document.querySelector('[aria-label="Loop video"]')) {
-							loopState = 1; // loop playlist
-						} else if (document.querySelector('[aria-label="Turn off loop"]')) {
-							loopState = 2; // loop video
+					if (args[0].isYoutubeMusic || args[0].isPlaylist) {
+						const playlistLoopState = args[0].isYoutubeMusic ? '[aria-label="Repeat all"]' : '[aria-label="Loop video"]';
+						const videoLoopState = args[0].isYoutubeMusic ? '[aria-label="Repeat one"]' : '[aria-label="Turn off loop"]';
+						if (document.querySelector(playlistLoopState)) {
+							loopState = 1;
+						} else if (document.querySelector(videoLoopState)) {
+							loopState = 2;
 						}
 					} else {
 						loopState = !!video?.getLoopVideo() ? 2 : 0;
