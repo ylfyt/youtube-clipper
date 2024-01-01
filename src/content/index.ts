@@ -2,18 +2,20 @@ import { storageDriver, type IStorage } from '../storage-driver';
 
 console.log('================= YT CLIPPER =================');
 
-let controller: AbortController | undefined;
-let adsObserver: MutationObserver | null;
-let storage: IStorage | null
 let prevId = '';
+let storage: IStorage | null = null
+let adsObserver: MutationObserver | null;
+let controller: AbortController | undefined;
 let prevPlayerType: 'video' | 'playlist' | null = null
 
 async function main() {
+	if (window.location.href.indexOf('youtube.com') === -1) {
+		return;
+	}
 	storage = await storageDriver.get();
 	if (!storage) {
 		return
 	}
-
 	const observer = new MutationObserver(observerCallback);
 	observer.observe(document.body, { attributes: false, childList: true, subtree: false });
 }
@@ -21,9 +23,6 @@ main();
 
 
 async function observerCallback() {
-	// if (window.location.href.indexOf('youtube.com') === -1) {
-	// 	return;
-	// }
 	// autoSkipAdHandler()
 	if (window.location.href.indexOf('youtube.com/watch') === -1) {
 		return;
