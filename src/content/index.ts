@@ -3,10 +3,10 @@ import { storageDriver, type IStorage } from '../storage-driver';
 console.log('================= YT CLIPPER =================');
 
 let prevId = '';
-let storage: IStorage | null = null
-let adsObserver: MutationObserver | null;
-let controller: AbortController | undefined;
-let prevPlayerType: 'video' | 'playlist' | null = null
+let storage: IStorage | undefined
+let controller: AbortController | undefined
+let adsObserver: MutationObserver | undefined
+let prevPlayerType: 'video' | 'playlist' | undefined
 
 async function main() {
 	if (window.location.href.indexOf('youtube.com') === -1) {
