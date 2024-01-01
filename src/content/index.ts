@@ -1,58 +1,30 @@
-import { storageDriver } from '../storage-driver';
+import { storageDriver, type IStorage } from '../storage-driver';
 
 console.log('================= YT CLIPPER =================');
 
 let controller: AbortController | undefined;
-
-function addLocationObserver(callback: MutationCallback) {
-	const config: MutationObserverInit = { attributes: false, childList: true, subtree: false };
-	const observer = new MutationObserver(callback);
-
-	observer.observe(document.body, config);
-}
-
-let init = false;
+let adsObserver: MutationObserver | null;
+let storage: IStorage | null
 let prevId = '';
+let prevPlayerType: 'video' | 'playlist' | null = null
+
+async function main() {
+	storage = await storageDriver.get();
+	if (!storage) {
+		return
+	}
+
+	const observer = new MutationObserver(observerCallback);
+	observer.observe(document.body, { attributes: false, childList: true, subtree: false });
+}
+main();
+
+
 async function observerCallback() {
-	if (window.location.href.indexOf('youtube.com') === -1) {
-		return;
-	}
-	const storage = await storageDriver.get();
-
-	if (!init && storage.autoSkipAd) {
-		const adsContainer: HTMLElement | null = document.querySelector('.video-ads');
-		if (adsContainer) {
-			console.log('PERFORM AUTO SKIP');
-			init = true;
-			const mutationCallback = function (mutations: MutationRecord[], observer: MutationObserver) {
-				if (mutations.length === 0) {
-					return;
-				}
-				if (mutations[0].addedNodes.length === 0) {
-					return;
-				}
-				console.log('NEW ADS');
-				setTimeout(() => {
-					console.log('TRYING TO SKIP');
-					const button: HTMLButtonElement | null = document.querySelector('.ytp-ad-skip-button');
-					if (!button) {
-						console.log('NO SKIP BUTTON');
-						return;
-					}
-					console.log('PERFOM SKIP ADS');
-					button.click();
-				}, 1000);
-			};
-			const observer = new MutationObserver(mutationCallback);
-
-			// Define which types of mutations to observe (in this case, we're interested in childList mutations)
-			const config = { childList: true };
-
-			// Start observing the target node with the specified configuration
-			observer.observe(adsContainer, config);
-		}
-	}
-
+	// if (window.location.href.indexOf('youtube.com') === -1) {
+	// 	return;
+	// }
+	// autoSkipAdHandler()
 	if (window.location.href.indexOf('youtube.com/watch') === -1) {
 		return;
 	}
@@ -73,25 +45,13 @@ async function observerCallback() {
 	executeVideo(videoId);
 }
 
-addLocationObserver(observerCallback);
-observerCallback();
-
-interface IVideo {
-	loop: boolean;
-	start: number;
-	end: number;
-	title: string;
-	id: string;
-}
-
 function getRandomNumber(min: number, max: number) {
 	return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
 async function executeVideo(videoId: string) {
-	const storage = await storageDriver.get();
 	const isPlaylist = window.location.href.indexOf('list=') !== -1;
-	if (isPlaylist && storage.alwaysShuffle) {
+	if (isPlaylist && prevPlayerType !== 'playlist' && storage!.alwaysShuffle) {
 		setTimeout(() => {
 			console.log('PERFORM ALWAYS SHUFFLE');
 			const shuffleButton = document.querySelector('[aria-label="Shuffle playlist"]') as HTMLButtonElement;
@@ -101,53 +61,48 @@ async function executeVideo(videoId: string) {
 			}
 		}, 2000);
 	}
-	if (!isPlaylist && storage.alwaysLoop) {
-		// setTimeout(() => {
-		// 	console.log('PERFORM ALWAYS LOOP');
-		// 	document.querySelector('video')?.setAttribute('loop', 'true');
-		// }, 2000);
-	}
+	prevPlayerType = isPlaylist ? 'playlist' : 'video'
+	// if (!isPlaylist && storage!.alwaysLoop) {
+	// setTimeout(() => {
+	// 	console.log('PERFORM ALWAYS LOOP');
+	// 	document.querySelector('video')?.setAttribute('loop', 'true');
+	// }, 2000);
+	// }
 
-	const video = storage.videos[videoId];
+	const video = storage!.videos[videoId];
 	if (!video) {
 		return;
 	}
 
 	// Select the video element on the YouTube page
-	var videoElement = document.querySelector('video');
-	if (!videoElement) {
+	let videoElement = document.querySelector('video');
+	if (videoElement == null) {
 		return;
 	}
-	let clipPosition = 0;
 
+	let clipPosition = 0;
 	if (video.clips[clipPosition].start >= 0) {
 		videoElement.currentTime = video.clips[clipPosition].start;
 	}
-
 	if (video.clips[clipPosition].start < 0) {
 		video.clips[clipPosition].start = 0;
 	}
-
 	if (video.clips[clipPosition].end < 0) {
 		return;
 	}
 
 	const listener = () => {
-		if (!videoElement) {
-			return;
-		}
-		const curr = videoElement.currentTime;
+		const curr = videoElement!.currentTime;
 		if (curr < video.clips[clipPosition].end) {
 			return;
 		}
 		clipPosition++;
 
 		if (clipPosition < video.clips.length) {
-			videoElement.currentTime = video.clips[clipPosition].start;
+			videoElement!.currentTime = video.clips[clipPosition].start;
 			return;
 		}
 
-		const isPlaylist = window.location.href.indexOf('list=') !== -1;
 		if (isPlaylist) {
 			controller?.abort();
 			controller = undefined;
@@ -179,7 +134,7 @@ async function executeVideo(videoId: string) {
 		if (video.loop) {
 			console.log(`============== LOOP ==============`);
 			clipPosition = 0;
-			videoElement.currentTime = video.clips[0].start;
+			videoElement!.currentTime = video.clips[0].start;
 			return;
 		}
 
@@ -204,4 +159,36 @@ async function executeVideo(videoId: string) {
 		console.log('============ ABORT ============');
 		videoElement!.removeEventListener('timeupdate', listener);
 	};
+}
+
+function autoSkipAdHandler() {
+	if (!storage?.autoSkipAd || adsObserver) {
+		return
+	}
+	const adsContainer: HTMLElement | null = document.querySelector('.video-ads');
+	if (!adsContainer) {
+		return;
+	}
+	console.log('PERFORM AUTO SKIP');
+	const mutationCallback = function (mutations: MutationRecord[], observer: MutationObserver) {
+		if (mutations.length === 0) {
+			return;
+		}
+		if (mutations[0].addedNodes.length === 0) {
+			return;
+		}
+		console.log('NEW ADS');
+		setTimeout(() => {
+			console.log('TRYING TO SKIP');
+			const button: HTMLButtonElement | null = document.querySelector('.ytp-ad-skip-button');
+			if (!button) {
+				console.log('NO SKIP BUTTON');
+				return;
+			}
+			console.log('PERFOM SKIP ADS');
+			button.click();
+		}, 1000);
+	};
+	adsObserver = new MutationObserver(mutationCallback);
+	adsObserver.observe(adsContainer, { childList: true });
 }
