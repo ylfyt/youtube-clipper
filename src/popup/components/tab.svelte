@@ -13,6 +13,7 @@
 	import VolumeIcon from '../../assets/svg/volume-icon.svelte';
 	import type { ITab } from '../../interfaces/tab';
 	import Button from './button.svelte';
+	import ArrowRight from './icons/arrow-right.svelte';
 
 	export let tab: ITab;
 	export let tabs: ITab[];
@@ -298,9 +299,18 @@
 			args: [{ second }],
 		});
 	};
+
+	const openTab = async () => {
+		await chrome.tabs.update(tab.id, {
+			active: true,
+		});
+	};
 </script>
 
-<div class="flex w-full justify-between border-[1px] border-color0 p-1.5 gap-2 rounded flex-col shadow">
+<div class="flex w-full justify-between border-[1px] border-color0 p-1.5 gap-2 rounded flex-col shadow relative">
+	<button on:click={openTab} title="Open Tab" class="absolute top-0 right-1 fill-secondary dark:fill-orange-500">
+		<ArrowRight width={18} />
+	</button>
 	<div class="flex items-start gap-2">
 		{#if tab.iconUrl}
 			<img width="18px" src={tab.iconUrl} alt="icon" />
