@@ -18,8 +18,9 @@
 
 	export let tab: ITab;
 	export let tabs: ITab[];
+	export let idx: number;
 
-	let showPlaylist = false;
+	let showPlaylist = idx === 0 && tab.isYoutube && tab.isPlaylist;
 
 	const toggleMute = async (tabId: number, state: boolean) => {
 		await chrome.tabs.update(tabId, { muted: !state });

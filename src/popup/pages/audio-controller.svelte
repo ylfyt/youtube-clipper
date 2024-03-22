@@ -1,9 +1,9 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
-	import type { ITab } from '../../interfaces/tab';
-	import { storage } from '../stores/storage';
-	import { storageDriver } from '../../storage-driver';
-	import Tab from '../components/tab.svelte';
+	import { onMount } from "svelte";
+	import type { ITab } from "../../interfaces/tab";
+	import { storage } from "../stores/storage";
+	import { storageDriver } from "../../storage-driver";
+	import Tab from "../components/tab.svelte";
 
 	let tabs: ITab[] = [];
 	let init = false;
@@ -35,13 +35,13 @@
 			if ($storage.includedUrls.length !== 0 && !isIncluded(tab.url!)) {
 				continue;
 			}
-			const isYoutubeMusic = !!tab.url?.includes('music.youtube.co');
-			const isYoutube = isYoutubeMusic || tab.url?.includes('youtube.com/watch') || tab.url?.includes('youtube.com/shorts');
+			const isYoutubeMusic = !!tab.url?.includes("music.youtube.co");
+			const isYoutube = isYoutubeMusic || tab.url?.includes("youtube.com/watch") || tab.url?.includes("youtube.com/shorts");
 			if (!isYoutube) {
 				temp.push({
 					isMuted: !!tab.mutedInfo?.muted,
 					isYoutube: false,
-					title: tab.title ?? '',
+					title: tab.title ?? "",
 					volume: 0,
 					isPlaylist: false,
 					id: tab.id ?? 0,
@@ -52,7 +52,7 @@
 				continue;
 			}
 
-			const isPlaylist = isYoutubeMusic || !!tab.url?.includes('list=');
+			const isPlaylist = isYoutubeMusic || !!tab.url?.includes("list=");
 
 			const res = await chrome.scripting.executeScript<
 				{ isPlaylist: boolean; isYoutubeMusic: boolean }[],
@@ -69,7 +69,7 @@
 						isYoutubeMusic: boolean;
 					}[]
 				) => {
-					const video = document.getElementById('movie_player') as any;
+					const video = document.getElementById("movie_player") as any;
 					let loopState = 0; // loop is turned off
 					if (args[0].isYoutubeMusic || args[0].isPlaylist) {
 						const playlistLoopState = args[0].isYoutubeMusic ? '[aria-label="Repeat all"]' : '[aria-label="Loop video"]';
@@ -84,23 +84,23 @@
 					}
 
 					const shuffleButton = document.querySelector('[aria-label="Shuffle playlist"]');
-					const isShuffled = shuffleButton?.getAttribute('aria-pressed') === 'true';
+					const isShuffled = shuffleButton?.getAttribute("aria-pressed") === "true";
 					return {
 						volume: video?.getVolume() ?? 0,
-						isPaused: document.querySelector('video')?.paused ?? false,
+						isPaused: document.querySelector("video")?.paused ?? false,
 						loopState,
 						isShuffled,
 					};
 				},
 				target: { tabId: tab.id! },
-				world: 'MAIN',
+				world: "MAIN",
 				args: [{ isPlaylist, isYoutubeMusic }],
 			});
 			temp.push({
 				isMuted: !!tab.mutedInfo?.muted,
 				isYoutube: true,
 				isYoutubeMusic,
-				title: tab.title ?? '',
+				title: tab.title ?? "",
 				volume: res[0].result.volume,
 				isPlaylist,
 				id: tab.id ?? 0,
@@ -115,7 +115,7 @@
 </script>
 
 <div class="flex flex-col gap-2 w-full">
-	{#each tabs as tab}
-		<Tab {tab} bind:tabs />
+	{#each tabs as tab, i}
+		<Tab {tab} idx={i} bind:tabs />
 	{/each}
 </div>

@@ -10,6 +10,7 @@
 	$: showedMetas = search.length < 2 ? metas : metas.filter((el) => `${el.title} ${el.channel}`.toLowerCase().includes(search.toLowerCase()));
 
 	onMount(() => {
+		document.getElementById("search-input")?.focus();
 		getPlaylist();
 	});
 
@@ -76,7 +77,7 @@
 </script>
 
 <div>
-	<input bind:value={search} class="bg-light px-2 py-0.5 mb-1 text-xs dark:bg-dark outline-none ring-0 border rounded border-color0" placeholder="Search..." type="text" />
+	<input id="search-input" bind:value={search} class="bg-light px-2 py-0.5 mb-1 text-xs dark:bg-dark outline-none ring-0 border rounded border-color0" placeholder="Search..." type="text" />
 	<div class="h-40 overflow-y-auto">
 		<ul class="w-full flex flex-col gap-1">
 			{#each showedMetas as item, i}
