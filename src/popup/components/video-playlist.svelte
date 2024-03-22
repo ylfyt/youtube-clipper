@@ -4,7 +4,10 @@
 	export let tabId: number;
 	export let refreshTabs: () => void;
 
-	let titles: string[] = [];
+	let metas: { title: string; channel: string; idx: number }[] = [];
+
+	let search = "";
+	$: showedMetas = search.length < 2 ? metas : metas.filter((el) => `${el.title} ${el.channel}`.toLowerCase().includes(search));
 
 	onMount(() => {
 		getPlaylist();
@@ -23,12 +26,17 @@
 				}
 				if (!container) return [];
 
-				const title: string[] = [];
-				container.querySelectorAll("#video-title").forEach((el) => {
-					if (!(el instanceof HTMLElement)) return;
-					title.push(el.innerText);
+				const meta: { title: string; channel: string; idx: number }[] = [];
+				container.querySelectorAll("#meta").forEach((el) => {
+					const title = (el.querySelector("#video-title") as HTMLElement).innerText;
+					const channel = (el.querySelector("#byline") as HTMLElement).innerText;
+					meta.push({
+						title,
+						channel,
+						idx: meta.length,
+					});
 				});
-				return title;
+				return meta;
 			},
 			target: {
 				tabId,
@@ -36,7 +44,7 @@
 			world: "MAIN",
 		});
 
-		titles = res[0].result;
+		metas = res[0].result;
 	};
 
 	const play = async (idx: number) => {
@@ -67,12 +75,22 @@
 	};
 </script>
 
-<div class="max-h-40 overflow-y-auto">
-	<ul class="w-full flex flex-col gap-1">
-		{#each titles as item, i}
-			<li>
-				<button class="border hover:bg-gray-300 dark:hover:bg-gray-800 text-left active:border-secondary border-color0 rounded w-full px-2 py-1" on:click={() => play(i)}>#{i + 1} {item}</button>
-			</li>
-		{/each}
-	</ul>
+<div>
+	<input bind:value={search} class="bg-light px-2 py-0.5 mb-1 text-xs dark:bg-dark outline-none ring-0 border rounded border-color0" placeholder="Search..." type="text" />
+	<div class="h-40 overflow-y-auto">
+		<ul class="w-full flex flex-col gap-1">
+			{#each showedMetas as item, i}
+				<li>
+					<button class="border hover:bg-gray-300 dark:hover:bg-gray-800 text-left active:border-secondary border-color0 rounded w-full px-2 py-1" on:click={() => play(item.idx)}>
+						<span>
+							#{i + 1}
+						</span>
+						<span>{item.title}</span>
+						|
+						<span class="text-secondary">{item.channel}</span>
+					</button>
+				</li>
+			{/each}
+		</ul>
+	</div>
 </div>
