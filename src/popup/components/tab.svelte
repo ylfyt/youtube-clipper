@@ -1,22 +1,25 @@
 <script lang="ts">
-	import ForwardIcon from '../../assets/svg/forward-icon.svelte';
-	import LoopIcon from '../../assets/svg/loop-icon.svelte';
-	import MinusIcon from '../../assets/svg/minus-icon.svelte';
-	import MutedIcon from '../../assets/svg/muted-icon.svelte';
-	import NextIcon from '../../assets/svg/next-icon.svelte';
-	import PauseIcon from '../../assets/svg/pause-icon.svelte';
-	import PlayIcon from '../../assets/svg/play-icon.svelte';
-	import PlusIcon from '../../assets/svg/plus-icon.svelte';
-	import PrevIcon from '../../assets/svg/prev-icon.svelte';
-	import RewindIcon from '../../assets/svg/rewind-icon.svelte';
-	import ShuffleIcon from '../../assets/svg/shuffle-icon.svelte';
-	import VolumeIcon from '../../assets/svg/volume-icon.svelte';
-	import type { ITab } from '../../interfaces/tab';
-	import Button from './button.svelte';
-	import ArrowRight from './icons/arrow-right.svelte';
+	import ForwardIcon from "../../assets/svg/forward-icon.svelte";
+	import LoopIcon from "../../assets/svg/loop-icon.svelte";
+	import MinusIcon from "../../assets/svg/minus-icon.svelte";
+	import MutedIcon from "../../assets/svg/muted-icon.svelte";
+	import NextIcon from "../../assets/svg/next-icon.svelte";
+	import PauseIcon from "../../assets/svg/pause-icon.svelte";
+	import PlayIcon from "../../assets/svg/play-icon.svelte";
+	import PlusIcon from "../../assets/svg/plus-icon.svelte";
+	import PrevIcon from "../../assets/svg/prev-icon.svelte";
+	import RewindIcon from "../../assets/svg/rewind-icon.svelte";
+	import ShuffleIcon from "../../assets/svg/shuffle-icon.svelte";
+	import VolumeIcon from "../../assets/svg/volume-icon.svelte";
+	import type { ITab } from "../../interfaces/tab";
+	import Button from "./button.svelte";
+	import ArrowRight from "./icons/arrow-right.svelte";
+	import VideoPlaylist from "./video-playlist.svelte";
 
 	export let tab: ITab;
 	export let tabs: ITab[];
+
+	let showPlaylist = false;
 
 	const toggleMute = async (tabId: number, state: boolean) => {
 		await chrome.tabs.update(tabId, { muted: !state });
@@ -28,17 +31,29 @@
 		});
 	};
 
+	const refreshTabs = () => {
+		setTimeout(async () => {
+			const newTab = await chrome.tabs.get(tab.id);
+			tabs = tabs.map((el) => {
+				if (el.id === tab.id) {
+					tab.title = newTab.title ?? "";
+				}
+				return tab;
+			});
+		}, 2000);
+	};
+
 	const upVolume = async (tabId: number) => {
 		const res = await chrome.scripting.executeScript({
 			func: () => {
-				const video: any = document.getElementById('movie_player');
+				const video: any = document.getElementById("movie_player");
 				video.setVolume(video.getVolume() + 2);
 				return video.getVolume();
 			},
 			target: {
 				tabId,
 			},
-			world: 'MAIN',
+			world: "MAIN",
 		});
 
 		const newVolume = Math.round(res?.[0]?.result);
@@ -53,14 +68,14 @@
 	const downVolume = async (tabId: number) => {
 		const res = await chrome.scripting.executeScript({
 			func: () => {
-				const video: any = document.getElementById('movie_player');
+				const video: any = document.getElementById("movie_player");
 				video.setVolume(video.getVolume() - 2);
 				return video.getVolume();
 			},
 			target: {
 				tabId,
 			},
-			world: 'MAIN',
+			world: "MAIN",
 		});
 
 		const newVolume = Math.round(res?.[0]?.result);
@@ -76,8 +91,8 @@
 		await chrome.scripting.executeScript({
 			func: () => {
 				document.dispatchEvent(
-					new KeyboardEvent('keydown', {
-						key: 'N',
+					new KeyboardEvent("keydown", {
+						key: "N",
 						keyCode: 78,
 						which: 78,
 						shiftKey: true,
@@ -91,23 +106,15 @@
 			},
 		});
 
-		setTimeout(async () => {
-			const newTab = await chrome.tabs.get(tabId);
-			tabs = tabs.map((tab) => {
-				if (tab.id === tabId) {
-					tab.title = newTab.title ?? '';
-				}
-				return tab;
-			});
-		}, 2000);
+		refreshTabs();
 	};
 
 	const prev = async (tabId: number) => {
 		await chrome.scripting.executeScript({
 			func: () => {
 				document.dispatchEvent(
-					new KeyboardEvent('keydown', {
-						key: 'P',
+					new KeyboardEvent("keydown", {
+						key: "P",
 						keyCode: 80,
 						which: 80,
 						shiftKey: true,
@@ -121,15 +128,7 @@
 			},
 		});
 
-		setTimeout(async () => {
-			const newTab = await chrome.tabs.get(tabId);
-			tabs = tabs.map((tab) => {
-				if (tab.id === tabId) {
-					tab.title = newTab.title ?? '';
-				}
-				return tab;
-			});
-		}, 2000);
+		refreshTabs();
 	};
 
 	const togglePlay = async (tabId: number) => {
@@ -144,8 +143,8 @@
 			await chrome.scripting.executeScript({
 				func: () => {
 					document.dispatchEvent(
-						new KeyboardEvent('keydown', {
-							key: ' ',
+						new KeyboardEvent("keydown", {
+							key: " ",
 							keyCode: 32,
 							which: 32,
 							shiftKey: false,
@@ -163,10 +162,10 @@
 		await chrome.scripting.executeScript({
 			func: () => {
 				document.dispatchEvent(
-					new KeyboardEvent('keydown', {
-						key: 'k',
+					new KeyboardEvent("keydown", {
+						key: "k",
 						keyCode: 75,
-						code: 'KeyK',
+						code: "KeyK",
 						which: 75,
 						shiftKey: false,
 						ctrlKey: false,
@@ -174,7 +173,7 @@
 					})
 				);
 
-				return document.querySelector('video')!.paused;
+				return document.querySelector("video")!.paused;
 			},
 			target: {
 				tabId,
@@ -194,7 +193,7 @@
 		>({
 			func: (...args: { isPlaylist: boolean; isYoutubeMusic: boolean }[]) => {
 				if (!args[0].isPlaylist) {
-					const video: any = document.getElementById('movie_player');
+					const video: any = document.getElementById("movie_player");
 					video && video.setLoopVideo(!video.getLoopVideo());
 					return { loopState: !!video?.getLoopVideo() ? 2 : 0 };
 				}
@@ -225,7 +224,7 @@
 			target: {
 				tabId,
 			},
-			world: 'MAIN',
+			world: "MAIN",
 			args: [
 				{
 					isPlaylist: tab.isPlaylist,
@@ -246,8 +245,8 @@
 			await chrome.scripting.executeScript({
 				func: () => {
 					document.dispatchEvent(
-						new KeyboardEvent('keydown', {
-							key: 's',
+						new KeyboardEvent("keydown", {
+							key: "s",
 							keyCode: 83,
 							which: 83,
 							shiftKey: false,
@@ -271,7 +270,7 @@
 			target: {
 				tabId,
 			},
-			world: 'MAIN',
+			world: "MAIN",
 		});
 		tabs = tabs.map((tab) => {
 			if (tab.id === tabId) {
@@ -289,13 +288,13 @@
 			void
 		>({
 			func: (...args: { second: number }[]) => {
-				const video: any = document.getElementById('movie_player');
+				const video: any = document.getElementById("movie_player");
 				video && video.seekBy(args[0].second);
 			},
 			target: {
 				tabId,
 			},
-			world: 'MAIN',
+			world: "MAIN",
 			args: [{ second }],
 		});
 	};
@@ -407,8 +406,8 @@
 					onClick={() => {
 						toggleLoop(tab.id);
 					}}
-					title={`Loop ${tab.loopState ? 'ON' : 'OFF'}`}
-					bgColor={!tab.isPlaylist ? (!tab.loopState ? 'bg-red-500' : 'bg-green-500') : !tab.loopState ? 'bg-red-500' : tab.loopState === 1 ? 'bg-green-500' : 'bg-orange-500'}
+					title={`Loop ${tab.loopState ? "ON" : "OFF"}`}
+					bgColor={!tab.isPlaylist ? (!tab.loopState ? "bg-red-500" : "bg-green-500") : !tab.loopState ? "bg-red-500" : tab.loopState === 1 ? "bg-green-500" : "bg-orange-500"}
 				>
 					<LoopIcon width={12} />
 				</Button>
@@ -417,13 +416,21 @@
 						onClick={() => {
 							toggleShuffle(tab.id);
 						}}
-						title={`Shuffle ${tab.isShuffled ? 'ON' : 'OFF'}`}
-						bgColor={tab.isShuffled ? 'bg-green-500' : 'bg-red-500'}
+						title={`Shuffle ${tab.isShuffled ? "ON" : "OFF"}`}
+						bgColor={tab.isShuffled ? "bg-green-500" : "bg-red-500"}
 					>
 						<ShuffleIcon width={12} />
 					</Button>
 				{/if}
 			</div>
+			{#if tab.isPlaylist}
+				<div class="ml-auto">
+					<Button onClick={() => (showPlaylist = !showPlaylist)} class="text-base" bgColor="bg-transparent">🔽</Button>
+				</div>
+			{/if}
 		{/if}
 	</div>
+	{#if showPlaylist}
+		<VideoPlaylist {refreshTabs} tabId={tab.id} />
+	{/if}
 </div>

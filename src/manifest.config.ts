@@ -55,6 +55,6 @@ export default defineManifest(async (env) => ({
 			description: 'Play/Pause the first Youtube video tab',
 		},
 	},
-	permissions: ['activeTab', 'tabs', 'scripting', 'storage'] as chrome.runtime.ManifestPermissions[],
+	permissions: ['activeTab', 'tabs', 'scripting', 'storage'],
 	host_permissions: ['http://*/', 'https://*/'],
 }));
