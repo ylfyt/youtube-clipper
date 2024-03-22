@@ -7,7 +7,7 @@
 	let metas: { title: string; channel: string; idx: number }[] = [];
 
 	let search = "";
-	$: showedMetas = search.length < 2 ? metas : metas.filter((el) => `${el.title} ${el.channel}`.toLowerCase().includes(search));
+	$: showedMetas = search.length < 2 ? metas : metas.filter((el) => `${el.title} ${el.channel}`.toLowerCase().includes(search.toLowerCase()));
 
 	onMount(() => {
 		getPlaylist();
