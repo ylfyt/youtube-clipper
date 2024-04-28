@@ -426,7 +426,7 @@
 			</div>
 			{#if tab.isPlaylist}
 				<div class="ml-auto">
-					<Button onClick={() => (showPlaylist = !showPlaylist)} class="text-base" bgColor="bg-transparent">🔽</Button>
+					<Button onClick={() => (showPlaylist = !showPlaylist)} class={`text-base transition-all ${showPlaylist ? "" : "-rotate-90"}`} bgColor="bg-transparent">🔽</Button>
 				</div>
 			{/if}
 		{/if}
