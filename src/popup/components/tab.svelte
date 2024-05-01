@@ -1,17 +1,18 @@
 <script lang="ts">
-	import ForwardIcon from "../../assets/svg/forward-icon.svelte";
-	import LoopIcon from "../../assets/svg/loop-icon.svelte";
-	import MinusIcon from "../../assets/svg/minus-icon.svelte";
-	import MutedIcon from "../../assets/svg/muted-icon.svelte";
-	import NextIcon from "../../assets/svg/next-icon.svelte";
-	import PauseIcon from "../../assets/svg/pause-icon.svelte";
-	import PlayIcon from "../../assets/svg/play-icon.svelte";
-	import PlusIcon from "../../assets/svg/plus-icon.svelte";
-	import PrevIcon from "../../assets/svg/prev-icon.svelte";
-	import RewindIcon from "../../assets/svg/rewind-icon.svelte";
-	import ShuffleIcon from "../../assets/svg/shuffle-icon.svelte";
-	import VolumeIcon from "../../assets/svg/volume-icon.svelte";
-	import type { ITab } from "../../interfaces/tab";
+	import ForwardIcon from "@/assets/svg/forward-icon.svelte";
+	import LoopIcon from "@/assets/svg/loop-icon.svelte";
+	import MinusIcon from "@/assets/svg/minus-icon.svelte";
+	import MutedIcon from "@/assets/svg/muted-icon.svelte";
+	import NextIcon from "@/assets/svg/next-icon.svelte";
+	import PauseIcon from "@/assets/svg/pause-icon.svelte";
+	import PlayIcon from "@/assets/svg/play-icon.svelte";
+	import PlusIcon from "@/assets/svg/plus-icon.svelte";
+	import PrevIcon from "@/assets/svg/prev-icon.svelte";
+	import RewindIcon from "@/assets/svg/rewind-icon.svelte";
+	import ShuffleIcon from "@/assets/svg/shuffle-icon.svelte";
+	import VolumeIcon from "@/assets/svg/volume-icon.svelte";
+	import type { ITab } from "@/interfaces/tab";
+	import { setYtVolume, type SetYtVolumeArgs } from "@/utils/yt-utils";
 	import Button from "./button.svelte";
 	import ArrowRight from "./icons/arrow-right.svelte";
 	import VideoPlaylist from "./video-playlist.svelte";
@@ -44,39 +45,14 @@
 		}, 2000);
 	};
 
-	const upVolume = async (tabId: number) => {
-		const res = await chrome.scripting.executeScript({
-			func: () => {
-				const video: any = document.getElementById("movie_player");
-				video.setVolume(video.getVolume() + 2);
-				return video.getVolume();
-			},
+	const setVolume = async (tabId: number, delta: number) => {
+		const res = await chrome.scripting.executeScript<SetYtVolumeArgs, number>({
+			func: setYtVolume,
 			target: {
 				tabId,
 			},
 			world: "MAIN",
-		});
-
-		const newVolume = Math.round(res?.[0]?.result);
-		tabs = tabs.map((tab) => {
-			if (tab.id === tabId) {
-				tab.volume = newVolume;
-			}
-			return tab;
-		});
-	};
-
-	const downVolume = async (tabId: number) => {
-		const res = await chrome.scripting.executeScript({
-			func: () => {
-				const video: any = document.getElementById("movie_player");
-				video.setVolume(video.getVolume() - 2);
-				return video.getVolume();
-			},
-			target: {
-				tabId,
-			},
-			world: "MAIN",
+			args: [delta],
 		});
 
 		const newVolume = Math.round(res?.[0]?.result);
@@ -332,21 +308,11 @@
 		</Button>
 		{#if tab.isYoutube}
 			<div class="flex gap-2 items-center">
-				<Button
-					title="Decrease volume"
-					onClick={() => {
-						downVolume(tab.id);
-					}}
-				>
+				<Button title="Decrease volume" onClick={() => setVolume(tab.id, -2)}>
 					<MinusIcon width={12} />
 				</Button>
 				<span class="bg-[#abdeee] text-black w-[30px] py-0.5 rounded flex items-center justify-center h-full">{Math.floor(tab.volume)}</span>
-				<Button
-					title="Increase volume"
-					onClick={() => {
-						upVolume(tab.id);
-					}}
-				>
+				<Button title="Increase volume" onClick={() => setVolume(tab.id, 2)}>
 					<PlusIcon width={12} />
 				</Button>
 			</div>
