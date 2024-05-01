@@ -12,7 +12,7 @@
 	import ShuffleIcon from "@/assets/svg/shuffle-icon.svelte";
 	import VolumeIcon from "@/assets/svg/volume-icon.svelte";
 	import type { ITab } from "@/interfaces/tab";
-	import { setYtVolume, type SetYtVolumeArgs } from "@/utils/yt-utils";
+	import { YtEvents, dispatchYtEvent, seekVideoYt, setYtVolume, shuffleYt, toggleLoopYt, type SeekVideoYtArgs, type SetYtVolumeArgs, type ToggleLoopYtArgs } from "@/utils/yt-utils";
 	import Button from "./button.svelte";
 	import ArrowRight from "./icons/arrow-right.svelte";
 	import VideoPlaylist from "./video-playlist.svelte";
@@ -48,9 +48,7 @@
 	const setVolume = async (tabId: number, delta: number) => {
 		const res = await chrome.scripting.executeScript<SetYtVolumeArgs, number>({
 			func: setYtVolume,
-			target: {
-				tabId,
-			},
+			target: { tabId },
 			world: "MAIN",
 			args: [delta],
 		});
@@ -66,21 +64,9 @@
 
 	const next = async (tabId: number) => {
 		await chrome.scripting.executeScript({
-			func: () => {
-				document.dispatchEvent(
-					new KeyboardEvent("keydown", {
-						key: "N",
-						keyCode: 78,
-						which: 78,
-						shiftKey: true,
-						ctrlKey: false,
-						metaKey: false,
-					})
-				);
-			},
-			target: {
-				tabId,
-			},
+			func: dispatchYtEvent,
+			target: { tabId },
+			args: [YtEvents.next()],
 		});
 
 		refreshTabs();
@@ -88,21 +74,9 @@
 
 	const prev = async (tabId: number) => {
 		await chrome.scripting.executeScript({
-			func: () => {
-				document.dispatchEvent(
-					new KeyboardEvent("keydown", {
-						key: "P",
-						keyCode: 80,
-						which: 80,
-						shiftKey: true,
-						ctrlKey: false,
-						metaKey: false,
-					})
-				);
-			},
-			target: {
-				tabId,
-			},
+			func: dispatchYtEvent,
+			target: { tabId },
+			args: [YtEvents.prev()],
 		});
 
 		refreshTabs();
@@ -115,99 +89,19 @@
 			}
 			return tab;
 		});
-
-		if (tab.isYoutubeMusic) {
-			await chrome.scripting.executeScript({
-				func: () => {
-					document.dispatchEvent(
-						new KeyboardEvent("keydown", {
-							key: " ",
-							keyCode: 32,
-							which: 32,
-							shiftKey: false,
-							ctrlKey: false,
-							metaKey: false,
-						})
-					);
-				},
-				target: {
-					tabId,
-				},
-			});
-			return;
-		}
 		await chrome.scripting.executeScript({
-			func: () => {
-				document.dispatchEvent(
-					new KeyboardEvent("keydown", {
-						key: "k",
-						keyCode: 75,
-						code: "KeyK",
-						which: 75,
-						shiftKey: false,
-						ctrlKey: false,
-						metaKey: false,
-					})
-				);
-
-				return document.querySelector("video")!.paused;
-			},
-			target: {
-				tabId,
-			},
+			func: dispatchYtEvent,
+			target: { tabId },
+			args: [tab.isYoutubeMusic ? YtEvents.playToggleMusic() : YtEvents.playToggle()],
 		});
 	};
 
 	const toggleLoop = async (tabId: number) => {
-		const res = await chrome.scripting.executeScript<
-			{
-				isPlaylist: boolean;
-				isYoutubeMusic: boolean;
-			}[],
-			{
-				loopState: number;
-			}
-		>({
-			func: (...args: { isPlaylist: boolean; isYoutubeMusic: boolean }[]) => {
-				if (!args[0].isPlaylist) {
-					const video: any = document.getElementById("movie_player");
-					video && video.setLoopVideo(!video.getLoopVideo());
-					return { loopState: !!video?.getLoopVideo() ? 2 : 0 };
-				}
-
-				const playlistLoopState = args[0].isYoutubeMusic ? '[aria-label="Repeat all"]' : '[aria-label="Loop video"]';
-				const videoLoopState = args[0].isYoutubeMusic ? '[aria-label="Repeat one"]' : '[aria-label="Turn off loop"]';
-
-				let loopState = 0;
-				if (document.querySelector(playlistLoopState)) {
-					loopState = 1;
-				} else if (document.querySelector(videoLoopState)) {
-					loopState = 2;
-				}
-
-				let button: any;
-				if (args[0].isYoutubeMusic) {
-					button = document.querySelector('[aria-label="Repeat one"]') || document.querySelector('[aria-label="Repeat all"]') || document.querySelector('[aria-label="Repeat off"]');
-				} else {
-					button = document.querySelector('[aria-label="Loop video"]') || document.querySelector('[aria-label="Loop playlist"]') || document.querySelector('[aria-label="Turn off loop"]');
-				}
-				button?.click();
-				loopState++;
-				if (loopState > 2) {
-					loopState = 0;
-				}
-				return { loopState };
-			},
-			target: {
-				tabId,
-			},
+		const res = await chrome.scripting.executeScript<ToggleLoopYtArgs, { loopState: number }>({
+			func: toggleLoopYt,
+			target: { tabId },
 			world: "MAIN",
-			args: [
-				{
-					isPlaylist: tab.isPlaylist,
-					isYoutubeMusic: !!tab.isYoutubeMusic,
-				},
-			],
+			args: [{ isPlaylist: tab.isPlaylist, isYoutubeMusic: !!tab.isYoutubeMusic }],
 		});
 		tabs = tabs.map((tab) => {
 			if (tab.id === tabId) {
@@ -220,33 +114,16 @@
 	const toggleShuffle = async (tabId: number) => {
 		if (tab.isYoutubeMusic) {
 			await chrome.scripting.executeScript({
-				func: () => {
-					document.dispatchEvent(
-						new KeyboardEvent("keydown", {
-							key: "s",
-							keyCode: 83,
-							which: 83,
-							shiftKey: false,
-							ctrlKey: false,
-							metaKey: false,
-						})
-					);
-				},
-				target: {
-					tabId,
-				},
+				func: dispatchYtEvent,
+				target: { tabId },
+				args: [YtEvents.shuffleMusic()],
 			});
 			return;
 		}
 
 		await chrome.scripting.executeScript({
-			func: () => {
-				const shuffleButton = document.querySelector('[aria-label="Shuffle playlist"]') as HTMLButtonElement;
-				shuffleButton?.click();
-			},
-			target: {
-				tabId,
-			},
+			func: shuffleYt,
+			target: { tabId },
 			world: "MAIN",
 		});
 		tabs = tabs.map((tab) => {
@@ -258,19 +135,9 @@
 	};
 
 	const seekVideo = async (tabId: number, second: number) => {
-		await chrome.scripting.executeScript<
-			{
-				second: number;
-			}[],
-			void
-		>({
-			func: (...args: { second: number }[]) => {
-				const video: any = document.getElementById("movie_player");
-				video && video.seekBy(args[0].second);
-			},
-			target: {
-				tabId,
-			},
+		await chrome.scripting.executeScript<SeekVideoYtArgs, void>({
+			func: seekVideoYt,
+			target: { tabId },
 			world: "MAIN",
 			args: [{ second }],
 		});
