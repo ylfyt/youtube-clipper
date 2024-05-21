@@ -5,9 +5,9 @@ export const setYtVolume = (...deltas: SetYtVolumeArgs): number => {
     return video.getVolume();
 };
 
-export type DispatchYtEventArgs = Event[];
+export type DispatchYtEventArgs = KeyboardEventInit[];
 export const dispatchYtEvent = (...events: DispatchYtEventArgs): void => {
-    document.dispatchEvent(events[0]);
+    document.dispatchEvent(new KeyboardEvent("keydown", events[0]));
 };
 
 export const shuffleYt = () => {
@@ -55,8 +55,8 @@ export const toggleLoopYt = (...args: ToggleLoopYtArgs): {
     return { loopState };
 };
 
-export const YtEvents = {
-    next: () => new KeyboardEvent("keydown", {
+export const YtEvents: Record<string, () => KeyboardEventInit> = {
+    next: () => ({
         key: "N",
         keyCode: 78,
         which: 78,
@@ -64,7 +64,7 @@ export const YtEvents = {
         ctrlKey: false,
         metaKey: false,
     }),
-    prev: () => new KeyboardEvent("keydown", {
+    prev: () => ({
         key: "P",
         keyCode: 80,
         which: 80,
@@ -72,7 +72,7 @@ export const YtEvents = {
         ctrlKey: false,
         metaKey: false,
     }),
-    playToggleMusic: () => new KeyboardEvent("keydown", {
+    playToggleMusic: () => ({
         key: " ",
         keyCode: 32,
         which: 32,
@@ -80,7 +80,7 @@ export const YtEvents = {
         ctrlKey: false,
         metaKey: false,
     }),
-    playToggle: () => new KeyboardEvent("keydown", {
+    playToggle: () => ({
         key: "k",
         keyCode: 75,
         code: "KeyK",
@@ -89,7 +89,7 @@ export const YtEvents = {
         ctrlKey: false,
         metaKey: false,
     }),
-    shuffleMusic: () => new KeyboardEvent("keydown", {
+    shuffleMusic: () => ({
         key: "s",
         keyCode: 83,
         which: 83,
