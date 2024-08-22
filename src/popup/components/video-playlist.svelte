@@ -5,11 +5,12 @@
 	export let refreshTabs: () => void;
 
 	let metas: { title: string; channel: string; idx: number; selected?: boolean }[] = [];
+	let metaElements: (HTMLButtonElement | null | undefined)[] = [];
 
 	let search = "";
 	$: showedMetas = search.length < 2 ? metas : metas.filter((el) => `${el.title} ${el.channel}`.toLowerCase().includes(search.toLowerCase()));
 
-	$: selectedMeta = metas.find((el) => el.selected);
+	$: metaElements.find((el) => el?.id === "selected")?.scrollIntoView();
 
 	onMount(() => {
 		document.getElementById("search-input")?.focus();
@@ -21,7 +22,8 @@
 			func: () => {
 				const items = document.querySelectorAll(".playlist-items");
 				let container: Element | undefined;
-				for (const item of items) {
+				for (let i = items.length - 1; i >= 0; i--) {
+					const item = items[i];
 					if (item.children.length !== 0) {
 						container = item;
 						break;
@@ -89,24 +91,11 @@
 <div>
 	<input id="search-input" bind:value={search} class="bg-light px-2 py-0.5 mb-1 text-xs dark:bg-dark outline-none ring-0 border rounded border-color0" placeholder="Search..." type="text" />
 	<div class="h-52 overflow-y-auto">
-		<div class="w-full flex flex-col gap-1">
-			{#if selectedMeta}
-				<button
-					disabled
-					class="border disabled:bg-gradient-to-r disabled:from-color0 disabled:via-purple-500 disabled:to-secondary disabled:text-black hover:enabled:bg-gray-300 dark:hover:enabled:bg-gray-800 text-left active:border-secondary outline-none focus:border-secondary border-color0 rounded w-full px-2 py-1"
-				>
-					<span>
-						#{selectedMeta.idx + 1}
-					</span>
-					<span>{selectedMeta.title}</span>
-					|
-					<span class={`${selectedMeta.selected ? "text-white" : "text-secondary"}`}>{selectedMeta.channel}</span>
-				</button>
-				<hr class="border-secondary my-1" />
-			{/if}
-
+		<div id="hello" class="w-full flex flex-col gap-1">
 			{#each showedMetas as item, i (i)}
 				<button
+					id={item.selected ? "selected" : ""}
+					bind:this={metaElements[i]}
 					disabled={item.selected}
 					class="border disabled:bg-gradient-to-r disabled:from-color0 disabled:via-purple-500 disabled:to-secondary disabled:text-black hover:enabled:bg-gray-300 dark:hover:enabled:bg-gray-800 text-left active:border-secondary outline-none focus:border-secondary border-color0 rounded w-full px-2 py-1"
 					on:click={() => play(item.idx)}
