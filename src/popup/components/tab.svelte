@@ -37,10 +37,8 @@
 		setTimeout(async () => {
 			const newTab = await chrome.tabs.get(tab.id);
 			tabs = tabs.map((el) => {
-				if (el.id === tab.id) {
-					tab.title = newTab.title ?? "";
-				}
-				return tab;
+				if (el.id === tab.id) el.title = newTab.title ?? "";
+				return el;
 			});
 		}, 2000);
 	};
@@ -241,11 +239,11 @@
 						toggleLoop(tab.id);
 					}}
 					title={`Loop ${tab.loopState ? "ON" : "OFF"}`}
-					bgColor={!tab.isPlaylist ? (!tab.loopState ? "bg-red-500" : "bg-green-500") : !tab.loopState ? "bg-red-500" : tab.loopState === 1 ? "bg-green-500" : "bg-orange-500"}
+					bgColor={!tab.isPlaylist || tab.isPlaylistMix ? (!tab.loopState ? "bg-red-500" : "bg-green-500") : !tab.loopState ? "bg-red-500" : tab.loopState === 1 ? "bg-green-500" : "bg-orange-500"}
 				>
 					<LoopIcon width={12} />
 				</Button>
-				{#if tab.isPlaylist}
+				{#if tab.isPlaylist && !tab.isPlaylistMix}
 					<Button
 						onClick={() => {
 							toggleShuffle(tab.id);

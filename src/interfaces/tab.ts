@@ -5,6 +5,7 @@ export interface ITab {
 	isYoutubeMusic?: boolean;
 	isMuted: boolean;
 	isPlaylist: boolean;
+	isPlaylistMix: boolean;
 	isPaused: boolean;
 	volume: number;
 	iconUrl?: string;

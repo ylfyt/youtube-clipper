@@ -44,6 +44,7 @@
 					title: tab.title ?? "",
 					volume: 0,
 					isPlaylist: false,
+					isPlaylistMix: false,
 					id: tab.id ?? 0,
 					isPaused: true,
 					iconUrl: tab.favIconUrl,
@@ -61,6 +62,7 @@
 					isPaused: boolean;
 					loopState: number;
 					isShuffled: boolean;
+					isPlaylistMix: boolean;
 				}
 			>({
 				func: (
@@ -70,8 +72,18 @@
 					}[]
 				) => {
 					const video = document.getElementById("movie_player") as any;
+					let isPlaylistMix = false;
+					if (args[0].isPlaylist) {
+						const playlistTitle =
+							Array.from(document.querySelectorAll("#container.ytd-playlist-panel-renderer"))
+								.reverse()
+								.find((el) => el.children.length !== 0)
+								?.querySelector(".header")
+								?.querySelector(".title")?.innerHTML ?? "";
+						isPlaylistMix = playlistTitle.includes("Mix -");
+					}
 					let loopState = 0; // loop is turned off
-					if (args[0].isYoutubeMusic || args[0].isPlaylist) {
+					if (!isPlaylistMix && (args[0].isYoutubeMusic || args[0].isPlaylist)) {
 						const playlistLoopState = args[0].isYoutubeMusic ? '[aria-label="Repeat all"]' : '[aria-label="Loop video"]';
 						const videoLoopState = args[0].isYoutubeMusic ? '[aria-label="Repeat one"]' : '[aria-label="Turn off loop"]';
 						if (document.querySelector(playlistLoopState)) {
@@ -90,6 +102,7 @@
 						isPaused: document.querySelector("video")?.paused ?? false,
 						loopState,
 						isShuffled,
+						isPlaylistMix,
 					};
 				},
 				target: { tabId: tab.id! },
@@ -108,6 +121,7 @@
 				iconUrl: tab.favIconUrl,
 				loopState: res[0].result.loopState,
 				isShuffled: res[0].result.isShuffled,
+				isPlaylistMix: res[0].result.isPlaylistMix,
 			});
 		}
 		tabs = temp;

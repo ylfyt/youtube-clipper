@@ -20,15 +20,9 @@
 	const getPlaylist = async () => {
 		const res = await chrome.scripting.executeScript({
 			func: () => {
-				const items = document.querySelectorAll(".playlist-items");
-				let container: Element | undefined;
-				for (let i = items.length - 1; i >= 0; i--) {
-					const item = items[i];
-					if (item.children.length !== 0) {
-						container = item;
-						break;
-					}
-				}
+				const container = Array.from(document.querySelectorAll(".playlist-items"))
+					.reverse()
+					.find((el) => el.children.length !== 0);
 				if (!container || !(container instanceof HTMLElement)) return [];
 
 				const meta: { title: string; channel: string; idx: number; selected?: boolean }[] = [];
@@ -59,17 +53,12 @@
 	const play = async (idx: number) => {
 		await chrome.scripting.executeScript<number[], void>({
 			func: (...ids: number[]) => {
-				const items = document.querySelectorAll(".playlist-items");
-				let container: Element | undefined;
-				for (const item of items) {
-					if (item.children.length !== 0) {
-						container = item;
-						break;
-					}
-				}
+				const container = Array.from(document.querySelectorAll(".playlist-items"))
+					.reverse()
+					.find((el) => el.children.length !== 0);
 				if (!container) return;
 
-				const endpoint = document.querySelectorAll("#wc-endpoint")[ids[0]];
+				const endpoint = container.querySelectorAll("#wc-endpoint")[ids[0]];
 				if (!(endpoint instanceof HTMLElement)) return;
 				endpoint.click();
 			},
@@ -90,7 +79,7 @@
 
 <div>
 	<input id="search-input" bind:value={search} class="bg-light px-2 py-0.5 mb-1 text-xs dark:bg-dark outline-none ring-0 border rounded border-color0" placeholder="Search..." type="text" />
-	<div class="h-52 overflow-y-auto">
+	<div class="max-h-52 overflow-y-auto">
 		<div id="hello" class="w-full flex flex-col gap-1">
 			{#each showedMetas as item, i (i)}
 				<button
