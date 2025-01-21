@@ -22,6 +22,7 @@
 	export let idx: number;
 
 	let showPlaylist = idx === 0 && tab.isYoutube && tab.isPlaylist;
+	let youtubeVolume = tab.volume;
 
 	const toggleMute = async (tabId: number, state: boolean) => {
 		await chrome.tabs.update(tabId, { muted: !state });
@@ -43,20 +44,12 @@
 		}, 2000);
 	};
 
-	const setVolume = async (tabId: number, delta: number) => {
-		const res = await chrome.scripting.executeScript<SetYtVolumeArgs, number>({
+	const setVolume = async () => {
+		await chrome.scripting.executeScript<SetYtVolumeArgs, number>({
 			func: setYtVolume,
-			target: { tabId },
+			target: { tabId: tab.id },
 			world: "MAIN",
-			args: [delta],
-		});
-
-		const newVolume = Math.round(res?.[0]?.result);
-		tabs = tabs.map((tab) => {
-			if (tab.id === tabId) {
-				tab.volume = newVolume;
-			}
-			return tab;
+			args: [youtubeVolume],
 		});
 	};
 
@@ -158,7 +151,7 @@
 		{/if}
 		<span class="text-sm font-medium">{tab.title}</span>
 	</div>
-	<div class="flex gap-6">
+	<div class="flex gap-4">
 		<Button
 			title="Mute/Unmute"
 			onClick={() => {
@@ -173,13 +166,8 @@
 		</Button>
 		{#if tab.isYoutube}
 			<div class="flex gap-2 items-center">
-				<Button title="Decrease volume" onClick={() => setVolume(tab.id, -2)}>
-					<MinusIcon width={12} />
-				</Button>
-				<span class="bg-[#abdeee] text-black w-[30px] py-0.5 rounded flex items-center justify-center h-full">{Math.floor(tab.volume)}</span>
-				<Button title="Increase volume" onClick={() => setVolume(tab.id, 2)}>
-					<PlusIcon width={12} />
-				</Button>
+				<input bind:value={youtubeVolume} type="range" min="0" max="100" class="w-20" on:change={setVolume} />
+				<span class="bg-[#abdeee] text-black w-[30px] rounded flex items-center justify-center h-full">{Math.floor(youtubeVolume)}</span>
 			</div>
 			<div class="flex items-center justify-center gap-2">
 				<Button

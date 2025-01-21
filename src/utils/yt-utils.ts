@@ -1,7 +1,7 @@
 export type SetYtVolumeArgs = number[];
-export const setYtVolume = (...deltas: SetYtVolumeArgs): number => {
+export const setYtVolume = (...volumes: SetYtVolumeArgs): number => {
 	const video: any = document.getElementById("movie_player");
-	video.setVolume(video.getVolume() + deltas[0]);
+	video.setVolume(volumes[0]);
 	return video.getVolume();
 };
 
