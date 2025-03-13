@@ -10,5 +10,7 @@ export interface ITab {
 	volume: number;
 	iconUrl?: string;
 	loopState: number;
-	isShuffled?: boolean; //
+	isShuffled?: boolean;
+	duration: number;
+	currentTime: number;
 }

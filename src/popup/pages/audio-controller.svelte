@@ -49,6 +49,8 @@
 					isPaused: true,
 					iconUrl: tab.favIconUrl,
 					loopState: 0,
+					currentTime: 0,
+					duration: 0,
 				});
 				continue;
 			}
@@ -63,6 +65,8 @@
 					loopState: number;
 					isShuffled: boolean;
 					isPlaylistMix: boolean;
+					duration: number;
+					currentTime: number;
 				}
 			>({
 				func: (
@@ -103,6 +107,8 @@
 						loopState,
 						isShuffled,
 						isPlaylistMix,
+						duration: video?.getDuration() ?? 0,
+						currentTime: video?.getCurrentTime() ?? 0,
 					};
 				},
 				target: { tabId: tab.id! },
@@ -122,6 +128,8 @@
 				loopState: res[0].result.loopState,
 				isShuffled: res[0].result.isShuffled,
 				isPlaylistMix: res[0].result.isPlaylistMix,
+				currentTime: res[0].result.currentTime,
+				duration: res[0].result.duration,
 			});
 		}
 		tabs = temp;

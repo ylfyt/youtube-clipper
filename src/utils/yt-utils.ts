@@ -15,10 +15,21 @@ export const shuffleYt = () => {
 	shuffleButton?.click();
 };
 
-export type SeekVideoYtArgs = { second: number }[];
+export type SeekVideoYtArgs = { second: number; to?: number }[];
 export const seekVideoYt = (...args: SeekVideoYtArgs) => {
 	const video: any = document.getElementById("movie_player");
-	video && video.seekBy(args[0].second);
+	if (!video) return;
+	if (args[0].to) return video.seekTo(args[0].to);
+
+	video.seekBy(args[0].second);
+};
+
+export const getVideoState = (): { duration: number; current: number } => {
+	const video: any = document.getElementById("movie_player");
+	return {
+		duration: video?.getDuration() ?? 0,
+		current: video?.getCurrentTime() ?? 0,
+	};
 };
 
 export type ToggleLoopYtArgs = { isPlaylist: boolean; isYoutubeMusic: boolean }[];

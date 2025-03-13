@@ -16,6 +16,7 @@
 	import Button from "./button.svelte";
 	import ArrowRight from "./icons/arrow-right.svelte";
 	import VideoPlaylist from "./video-playlist.svelte";
+	import { secondToTimeString } from "@/utils/second-to-time-string";
 
 	export let tab: ITab;
 	export let tabs: ITab[];
@@ -23,6 +24,7 @@
 
 	let showPlaylist = idx === 0 && tab.isYoutube && tab.isPlaylist;
 	let youtubeVolume = tab.volume;
+	let seekPosition = tab.duration === 0 ? 0 : (tab.currentTime / tab.duration) * 100;
 
 	const toggleMute = async (tabId: number, state: boolean) => {
 		await chrome.tabs.update(tabId, { muted: !state });
@@ -125,12 +127,12 @@
 		});
 	};
 
-	const seekVideo = async (tabId: number, second: number) => {
+	const seekVideo = async (tabId: number, second: number, to?: number) => {
 		await chrome.scripting.executeScript<SeekVideoYtArgs, void>({
 			func: seekVideoYt,
 			target: { tabId },
 			world: "MAIN",
-			args: [{ second }],
+			args: [{ second, to }],
 		});
 	};
 
@@ -151,6 +153,31 @@
 		{/if}
 		<span class="text-sm font-medium">{tab.title}</span>
 	</div>
+	{#if tab.duration}
+		<div class="flex items-center gap-2">
+			<Button
+				title="Rewind 10s"
+				onClick={() => {
+					seekVideo(tab.id, -10);
+				}}
+				bgColor="bg-orange-500"
+			>
+				<RewindIcon width={12} />
+			</Button>
+			<span class="text-sm">{secondToTimeString(Math.floor((seekPosition / 100) * tab.duration))}</span>
+			<input bind:value={seekPosition} type="range" min="0" max={100} class="flex-1" on:change={() => seekVideo(tab.id, 0, (seekPosition / 100) * tab.duration)} />
+			<span class="text-sm">{secondToTimeString(Math.floor(tab.duration))}</span>
+			<Button
+				title="Forward 10s"
+				onClick={() => {
+					seekVideo(tab.id, 10);
+				}}
+				bgColor="bg-orange-500"
+			>
+				<ForwardIcon width={12} />
+			</Button>
+		</div>
+	{/if}
 	<div class="flex gap-4">
 		<Button
 			title="Mute/Unmute"
@@ -181,15 +208,6 @@
 					<PrevIcon width={12} />
 				</Button>
 				<Button
-					title="Rewind 10s"
-					onClick={() => {
-						seekVideo(tab.id, -10);
-					}}
-					bgColor="bg-orange-500"
-				>
-					<RewindIcon width={12} />
-				</Button>
-				<Button
 					title="Play/Pause"
 					bgColor="bg-orange-500"
 					onClick={() => {
@@ -201,15 +219,6 @@
 					{:else}
 						<PauseIcon width={12} />
 					{/if}
-				</Button>
-				<Button
-					title="Forward 10s"
-					onClick={() => {
-						seekVideo(tab.id, 10);
-					}}
-					bgColor="bg-orange-500"
-				>
-					<ForwardIcon width={12} />
 				</Button>
 				<Button
 					title="Next"
